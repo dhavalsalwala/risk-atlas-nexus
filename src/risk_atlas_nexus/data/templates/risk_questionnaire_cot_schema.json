@@ -1,0 +1,58 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Generated schema for Root",
+    "description": "A list of examples for risk identification categorized by taxonomy type.",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "no": {
+                "type": "string"
+            },
+            "question": {
+                "type": "string"
+            },
+            "cot_examples": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "intent": {
+                                    "type": "string"
+                                },
+                                "answer": {
+                                    "type": "string"
+                                },
+                                "explanation": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "intent",
+                                "answer",
+                                "explanation"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "required": [
+            "question"
+        ],
+        "additionalProperties": false
+    }
+}

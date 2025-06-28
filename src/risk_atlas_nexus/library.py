@@ -25,6 +25,9 @@ from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     RiskIncident,
     RiskTaxonomy,
 )
+from risk_atlas_nexus.blocks.auto_assist.autoassist_questionnaire import (
+    AutoAssistRiskQuestionnaire,
+)
 from risk_atlas_nexus.blocks.inference import InferenceEngine
 from risk_atlas_nexus.blocks.prompt_builder import (
     FewShotPromptBuilder,
@@ -581,108 +584,42 @@ class RiskAtlasNexus:
         taxonomy: RiskTaxonomy | None = cls._risk_explorer.get_taxonomy_by_id(id)
         return taxonomy
 
-    def generate_zero_shot_risk_questionnaire_output(
+    def generate_risk_questionnaire_output(
         cls,
         usecase: str,
-        risk_questionnaire: List[Dict[str, str]],
         inference_engine: InferenceEngine,
+        risk_questionnaire: Optional[List[Dict[str, Any]]] = None,
         verbose=True,
     ):
-        """Get prediction using the zero shot approach.
+        """Get risks prediction using the few shot (Chain of Thought) or zero shot approaches.
 
         Args:
             usecase (str): A string describing an AI usecase
-            risk_questionnaire: List[Dict[str, str]]: A risk questionnaire
-                Check example below.
-                ```
-                [
-                    "In which environment is the system used?",
-                ]
-                ```
             inference_engine (InferenceEngine):
                 An LLM inference engine to predict the output based on the given use case.
-
-        Returns:
-            List[str]: List of LLM predictions.
-        """
-        type_check(
-            "<RANF7EFFADAE>",
-            InferenceEngine,
-            allow_none=False,
-            inference_engine=inference_engine,
-        )
-        type_check(
-            "<RANB9FDEA04E>",
-            str,
-            allow_none=False,
-            usecase=usecase,
-        )
-        type_check(
-            "<RANF7256EC3E>",
-            List,
-            allow_none=False,
-            questions=risk_questionnaire,
-        )
-        value_check(
-            "<RANC49F00D3E>",
-            inference_engine and risk_questionnaire,
-            "Please provide questions and inference_engine",
-        )
-
-        # Extract only questions
-        risk_questionnaire = [
-            question_data["question"] for question_data in risk_questionnaire
-        ]
-
-        # Prepare zero shots inference prompts
-        prompts = [
-            ZeroShotPromptBuilder(
-                QUESTIONNAIRE_COT_TEMPLATE,
-            ).build(usecase=usecase, question=question)
-            for question in risk_questionnaire
-        ]
-
-        # Invoke inference service
-        return inference_engine.generate(
-            prompts,
-            response_format=QUESTIONNAIRE_OUTPUT_SCHEMA,
-            postprocessors=["json_object"],
-            verbose=verbose,
-        )
-
-    def generate_few_shot_risk_questionnaire_output(
-        cls,
-        usecase: str,
-        risk_questionnaire: List[Dict[str, Any]],
-        inference_engine: InferenceEngine,
-        verbose=True,
-    ):
-        """Get prediction using the few shot (Chain of Thought) examples.
-
-        Args:
-            usecase (str): A string describing an AI usecase
-            risk_questionnaire (List[Dict]): Chain of Thought data for risk questionnaire.
+            risk_questionnaire (List[Dict], optional): Risk questionnaire with Chain of Thought examples.
                 Each question is associated with a list of example intents and
                 corresponding answers. Check example JSON below.
                 ```
                 [
                     {
+                        "no": "Q1",
                         "question": "In which environment is the system used?",
-                        "examples": [
-                            "intent": "Find patterns in healthcare insurance claims",
-                            "answer": "Insurance Claims Processing or Risk Management or Data Analytics",
-                            "explanation": "The system might be used by an insurance company's claims processing department to analyze and identify patterns in healthcare insurance claims."
+                        "cot_examples": [
+                            {
+                                "intent": "Find patterns in healthcare insurance claims",
+                                "answer": "Insurance Claims Processing or Risk Management or Data Analytics",
+                                "explanation": "The system might be used by an insurance company's claims processing department to analyze and identify patterns in healthcare insurance claims."
+                            }
+                            ...
                         ]
                     }
+                    ...
                 ]
-            inference_engine (InferenceEngine):
-                An LLM inference engine to predict the output based on the given use case.
-            filter_cot_data_by (Dict[str, str]):
-                A dictionary to filter CoT examples with key as CoT field and value as filter string.
                 ```
 
         Returns:
-            List[str]: List of LLM predictions.
+            List[str]: List of LLM predictions for risk questionnaire.
         """
         type_check(
             "<RAN19989483E>",
@@ -705,30 +642,18 @@ class RiskAtlasNexus:
         value_check(
             "<RAN59638961E>",
             inference_engine and risk_questionnaire,
-            "Please provide risk_questionnaire_cot and inference_engine",
+            "Please provide risk_questionnaire and inference_engine",
         )
-
-        assert (
-            risk_questionnaire and len(risk_questionnaire) > 0
-        ), "`Chain of Thought (risk_questionnaire_cot)` data cannot be None or empty."
-
-        # Prepare few shots inference prompts from CoT Data
-        prompts = [
-            FewShotPromptBuilder(QUESTIONNAIRE_COT_TEMPLATE).build(
-                cot_examples=question_data["cot_examples"],
-                usecase=usecase,
-                question=question_data["question"],
-            )
-            for question_data in risk_questionnaire
-        ]
-
-        # Invoke inference service
-        return inference_engine.generate(
-            prompts,
-            response_format=QUESTIONNAIRE_OUTPUT_SCHEMA,
-            postprocessors=["json_object"],
+        type_check(
+            "<RANF7EFFADAE>",
+            bool,
+            allow_none=False,
             verbose=verbose,
         )
+
+        return AutoAssistRiskQuestionnaire(
+            inference_engine, risk_questionnaire, verbose
+        ).generate_responses(usecase)
 
     def identify_ai_tasks_from_usecases(
         cls, usecases: List[str], inference_engine: InferenceEngine, verbose=True
