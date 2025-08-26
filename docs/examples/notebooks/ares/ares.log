@@ -1,0 +1,32 @@
+2025-08-26 21:57:11,309 - INFO - Loading faiss.
+2025-08-26 21:57:11,326 - INFO - Successfully loaded faiss.
+2025-08-26 21:57:13,120 - INFO - ARES evaluation started.
+2025-08-26 21:57:13,133 - ERROR - prompts error for assets/pii-seeds.csv.
+2025-08-26 21:57:13,134 - ERROR - Invalid configuration: 'prompts error for assets/pii-seeds.csv.'.
+2025-08-26 21:58:28,485 - INFO - Loading faiss.
+2025-08-26 21:58:28,502 - INFO - Successfully loaded faiss.
+2025-08-26 21:58:30,313 - INFO - ARES evaluation started.
+2025-08-26 21:58:30,321 - ERROR - prompts error for assets/pii-seeds.csv.
+2025-08-26 21:58:30,322 - ERROR - Invalid configuration: 'prompts error for assets/pii-seeds.csv.'.
+2025-08-26 21:58:53,806 - INFO - Loading faiss.
+2025-08-26 21:58:53,824 - INFO - Successfully loaded faiss.
+2025-08-26 21:58:55,723 - INFO - ARES evaluation started.
+2025-08-26 21:58:55,732 - INFO - Checking for presence of: ares.goals.generic_attack_goal.GenericAttackGoal
+2025-08-26 21:58:55,733 - INFO - Checking for presence of: readi_eval.READIEvaluator
+2025-08-26 21:58:57,416 - INFO - Checking for presence of: ares.strategies.direct_requests.DirectRequests
+2025-08-26 21:58:57,476 - INFO - External connectors found in ares plugins: []:
+2025-08-26 21:58:57,477 - INFO - ==========Target==========
+2025-08-26 21:58:57,477 - INFO - Connector initialized with config: {'name': huggingface/ares.connectors.huggingface.HuggingFaceConnector}
+2025-08-26 21:58:59,515 - INFO - ==========Goals==========
+2025-08-26 21:58:59,516 - INFO - AttackGoal initialized with config: {'type': ares.goals.generic_attack_goal.GenericAttackGoal}
+2025-08-26 21:58:59,520 - INFO - Successfully read 10 goal(s) from file!
+2025-08-26 21:58:59,520 - INFO - Goals saved to assets/attack_goals.json
+2025-08-26 21:58:59,521 - INFO - ========Strategies=======
+2025-08-26 21:58:59,521 - INFO - Loading goals from source: assets/attack_goals.json
+2025-08-26 21:58:59,522 - INFO - AttackStrategy initialized with config: {ares.strategies.direct_requests.DirectRequests}
+2025-08-26 21:58:59,522 - INFO - Attacking target connector huggingface with 10 prompt(s)...
+2025-08-26 21:59:30,028 - INFO - Saving attack results to assets/direct_requests.json
+2025-08-26 21:59:30,030 - INFO - =======Evaluations=======
+2025-08-26 21:59:30,030 - INFO - AttackEval initialized with config: {'name': READIEvaluator}
+2025-08-26 21:59:32,748 - INFO - Starting READI evaluation...
+2025-08-26 21:59:33,823 - INFO - Saving results to results/direct_requests_evaluation.json

@@ -5,10 +5,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
+from ares.cli import evaluate
 from jinja2 import Template
 from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import YAMLDumper
+from linkml_runtime.loaders import yaml_loader
 from sssom_schema import Mapping
+
+from risk_atlas_nexus.ares import ARES_DIR
 
 
 # workaround for txtai
@@ -26,6 +30,7 @@ from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     RiskIncident,
     RiskTaxonomy,
 )
+from risk_atlas_nexus.ares.ares_ontology import RiskGroupToARESConfigList
 from risk_atlas_nexus.blocks.inference import InferenceEngine
 from risk_atlas_nexus.blocks.prompt_builder import (
     FewShotPromptBuilder,
@@ -1313,3 +1318,35 @@ class RiskAtlasNexus:
             )
 
         return results
+
+    def execute_ares_evaluation(self, risk_group: str):
+        """Execute evaluation using the ARES API
+
+        Args:
+            risk_group (str): risk attack group id
+        """
+
+        # Load all risk-to-ares mappings
+        risk_group_to_ares_config_list: RiskGroupToARESConfigList = (
+            yaml_loader.load_any(
+                source=yaml_loader.load_as_dict(
+                    source=os.path.join(ARES_DIR, "risk_group_ares_mapping.yaml")
+                ),
+                target_class=RiskGroupToARESConfigList,
+            )
+        )
+
+        # find ares config for the given risk group
+        risk_group_to_ares_config = list(
+            filter(
+                lambda risk_group_to_ares_config: risk_group_to_ares_config.risk_attack_group
+                == risk_group,
+                risk_group_to_ares_config_list.mappings,
+            )
+        )[0]
+
+        ares_config = risk_group_to_ares_config.config.model_dump(by_alias=True)
+        ares_config.update(ares_config["red-teaming"].pop("intent_config"))
+
+        # Call ARES API
+        evaluate(config=Path(os.path.join(ARES_DIR, "run_config.yaml")))

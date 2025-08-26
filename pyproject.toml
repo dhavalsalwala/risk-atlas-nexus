@@ -55,6 +55,7 @@ dependencies = [
     "jsonschema",
     "isort",
     "pre-commit",
+    "git+ssh://git@github.com/IBM/ares.git"
 ]
 
 
