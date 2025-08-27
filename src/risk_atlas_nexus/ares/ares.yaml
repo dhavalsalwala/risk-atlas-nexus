@@ -50,11 +50,6 @@ classes:
         range: string
         required: true
         ifabsent: ares.goals.generic_attack_goal.GenericAttackGoal
-      label:
-        description: label
-        range: string
-        required: true
-        ifabsent: Behavior
       goal:
         description: column name of the field in the input file to be used as source of goals
         range: string

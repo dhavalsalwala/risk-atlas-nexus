@@ -39,7 +39,6 @@ mappings:
             base_path: assets/attack_goal.json
             output_path: assets/attack_goals.json
             goal: Behavior
-            label: Behavior
           strategy:
             direct_requests:
               id: 105038af-dbee-490f-accf-27c7e466fb01
@@ -49,7 +48,7 @@ mappings:
               output_path: assets/direct_requests.json
           evaluation:
             id: 00934a1e-6774-4b2f-a7b5-2e146f3c437a
-            name: KeywordEvaluator
+            name: keyword
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
@@ -105,7 +104,7 @@ mappings:
               probe: probes.encoding.InjectROT13
           evaluation:
             id: 7795c87b-243b-456d-b231-a3ca3f668b26
-            name: KeywordEvaluator
+            name: keyword
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
@@ -161,7 +160,7 @@ mappings:
               jailbreaks_path: assets/human_jailbreaks.json
           evaluation:
             id: 54f5a086-ac94-483c-a2ab-ad92e1ad30cf
-            name: KeywordEvaluator
+            name: keyword
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
@@ -230,7 +229,7 @@ mappings:
               probe: probes.encoding.InjectROT13
           evaluation:
             id: fb73eb28-888d-429c-a544-b049855fdd87
-            name: KeywordEvaluator
+            name: keyword
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
