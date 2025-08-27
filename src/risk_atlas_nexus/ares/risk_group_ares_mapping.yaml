@@ -1,13 +1,13 @@
 mappings:
-- id: df650404-cb80-4de9-9d8f-bd7271dc9ece
-  name: robustness-prompt-attacks
-  risk_attack_group: ibm-risk-atlas-robustness-prompt-attacks
+- id: bf605a8a-fbe4-4d15-ac04-912b45c74bf2
+  name: direct_instructions_attack
+  risk_attack_id: direct-instructions-attack
   config:
-    id: 8099a404-d727-4ab2-9b05-38f6536c2c36
+    id: b1e581d7-de41-43ad-8d22-782a6a626b8d
     name: ares_default_config
     target:
       huggingface:
-        id: 7267a47c-c74b-4ac0-af7c-e718ad5f2ee9
+        id: 1c6186e0-6061-4da1-8343-d78c4e16aef8
         type: ares.connectors.huggingface.HuggingFaceConnector
         seed: 42
         device: auto
@@ -26,13 +26,124 @@ mappings:
           generate_params:
             max_new_tokens: 50
     red_teaming:
-      id: 78f49f14-3b01-4c90-9f4a-da807b39fec9
+      id: d9fb6817-c8d5-453c-81a2-59868d4bc218
       intent: owasp-llm-02
       intent_config:
         owasp-llm-02:
-          id: be6d46d5-9911-43fc-9b0b-4ad7fbac89fa
+          id: 2630de59-4779-4f80-ab20-6c8ca97fba2b
           goal:
-            id: 21cd5985-bfb3-439e-b082-f0dc9d7aad31
+            id: 863801f7-d7f3-4b04-bab3-c7cb9d163367
+            name: Generic Attack Goal
+            type: ares.goals.generic_attack_goal.GenericAttackGoal
+            origin: local
+            base_path: assets/attack_goal.json
+            output_path: assets/attack_goals.json
+            goal: Behavior
+            label: Behavior
+          strategy:
+            direct_requests:
+              id: 105038af-dbee-490f-accf-27c7e466fb01
+              name: direct_requests
+              type: ares.strategies.direct_requests.DirectRequests
+              input_path: assets/attack_goals.json
+              output_path: assets/direct_requests.json
+          evaluation:
+            id: 00934a1e-6774-4b2f-a7b5-2e146f3c437a
+            name: KeywordEvaluator
+            type: ares.evals.keyword_eval.KeywordEval
+            output_path: results/evaluation.json
+            keyword_list_or_path: assets/advbench_refusal_keywords.json
+      prompts: assets/pii-seeds.csv
+- id: 9b21162d-7350-4a70-a73e-670d46d17487
+  name: encoded_interactions_attack
+  risk_attack_id: encoded-interactions-attack
+  config:
+    id: e336e9d5-5eda-4d26-9367-d13d9a3c7fa3
+    name: ares_default_config
+    target:
+      huggingface:
+        id: 2542e9bc-65ec-483e-a40f-f0e9103db543
+        type: ares.connectors.huggingface.HuggingFaceConnector
+        seed: 42
+        device: auto
+        model_configs:
+          pretrained_model_name_or_path: Qwen/Qwen2-0.5B-Instruct
+          torch_dtype: bfloat16
+        tokenizer_config:
+          pretrained_model_name_or_path: Qwen/Qwen2-0.5B-Instruct
+          padding_side: left
+        generate_kwargs:
+          chat_template:
+            return_tensors: pt
+            thinking: true
+            return_dict: true
+            add_generation_prompt: true
+          generate_params:
+            max_new_tokens: 50
+    red_teaming:
+      id: c38f7d4f-a2fe-4212-a6ec-d19b65334588
+      intent: owasp-llm-02
+      intent_config:
+        owasp-llm-02:
+          id: 2f41447a-6aa7-46c7-854d-1f41cb1b78c9
+          goal:
+            id: dd075cac-4dc1-4e81-8706-eddf13b469f9
+            name: Generic Attack Goal
+            type: ares.goals.generic_attack_goal.GenericAttackGoal
+            origin: local
+            base_path: assets/attack_goal.json
+            output_path: assets/attack_goals.json
+            goal: Behavior
+            label: Behavior
+          strategy:
+            probes.encoding.InjectROT13:
+              id: 6a459f3f-716b-4966-a5c8-044d0ed7cda4
+              name: probes.encoding.InjectROT13
+              type: ares_garak.strategies.encoding.EncodingStrategy
+              input_path: assets/attack_goals.json
+              output_path: assets/garak_InjectROT13.json
+              probe: probes.encoding.InjectROT13
+          evaluation:
+            id: 7795c87b-243b-456d-b231-a3ca3f668b26
+            name: KeywordEvaluator
+            type: ares.evals.keyword_eval.KeywordEval
+            output_path: results/evaluation.json
+            keyword_list_or_path: assets/advbench_refusal_keywords.json
+      prompts: assets/pii-seeds.csv
+- id: 2f82ed3b-ffc2-4c76-9497-ce805068e022
+  name: social_hacking_attack
+  risk_attack_id: social-hacking-attack
+  config:
+    id: 709e30b3-782c-4750-bdf5-7c5ddc7e31ae
+    name: ares_default_config
+    target:
+      huggingface:
+        id: 4fe64797-b5ac-4647-8bdf-dd47788063f3
+        type: ares.connectors.huggingface.HuggingFaceConnector
+        seed: 42
+        device: auto
+        model_configs:
+          pretrained_model_name_or_path: Qwen/Qwen2-0.5B-Instruct
+          torch_dtype: bfloat16
+        tokenizer_config:
+          pretrained_model_name_or_path: Qwen/Qwen2-0.5B-Instruct
+          padding_side: left
+        generate_kwargs:
+          chat_template:
+            return_tensors: pt
+            thinking: true
+            return_dict: true
+            add_generation_prompt: true
+          generate_params:
+            max_new_tokens: 50
+    red_teaming:
+      id: b1766b8f-75de-4592-953b-1a8c9036d3b4
+      intent: owasp-llm-02
+      intent_config:
+        owasp-llm-02:
+          id: 0535638f-71e9-4a34-ba1f-4074ab926ddf
+          goal:
+            id: 2040edd5-617a-490d-ae83-b95b0f4806ea
             name: Generic Attack Goal
             type: ares.goals.generic_attack_goal.GenericAttackGoal
             origin: local
@@ -42,28 +153,85 @@ mappings:
             label: Behavior
           strategy:
             human_jailbreak:
-              id: 5ef22533-0bb0-4934-9793-8e2553d640ec
+              id: df9e98ee-3419-4fc8-9814-060f4c566c29
               name: human_jailbreak
               type: ares_human_jailbreak.strategies.human_jailbreak.HumanJailbreak
               input_path: assets/attack_goals.json
               output_path: assets/human_jailbreak.json
               jailbreaks_path: assets/human_jailbreaks.json
+          evaluation:
+            id: 54f5a086-ac94-483c-a2ab-ad92e1ad30cf
+            name: KeywordEvaluator
+            type: ares.evals.keyword_eval.KeywordEval
+            output_path: results/evaluation.json
+            keyword_list_or_path: assets/advbench_refusal_keywords.json
+      prompts: assets/pii-seeds.csv
+- id: 0eca79b4-8866-43ed-b3f7-83f03408d883
+  name: specialized_tokens_attack
+  risk_attack_id: specialized-tokens-attack
+  config:
+    id: 6f1bec4e-0143-4bf8-94ff-d3a0cd04e42d
+    name: ares_default_config
+    target:
+      huggingface:
+        id: 6d6a5ec5-2d25-4a4c-b971-1f63f2796584
+        type: ares.connectors.huggingface.HuggingFaceConnector
+        seed: 42
+        device: auto
+        model_configs:
+          pretrained_model_name_or_path: Qwen/Qwen2-0.5B-Instruct
+          torch_dtype: bfloat16
+        tokenizer_config:
+          pretrained_model_name_or_path: Qwen/Qwen2-0.5B-Instruct
+          padding_side: left
+        generate_kwargs:
+          chat_template:
+            return_tensors: pt
+            thinking: true
+            return_dict: true
+            add_generation_prompt: true
+          generate_params:
+            max_new_tokens: 50
+    red_teaming:
+      id: 86c78487-5a4f-4fea-ba2b-7477ca8353f8
+      intent: owasp-llm-02
+      intent_config:
+        owasp-llm-02:
+          id: ac9edcec-5dc7-4b6a-9c0f-38ab39f0489b
+          goal:
+            id: 333556cf-7008-4d0b-bf0a-b68b583a44a3
+            name: Generic Attack Goal
+            type: ares.goals.generic_attack_goal.GenericAttackGoal
+            origin: local
+            base_path: assets/attack_goal.json
+            output_path: assets/attack_goals.json
+            goal: Behavior
+            label: Behavior
+          strategy:
             direct_requests:
-              id: 6b977b9e-a717-465e-89fc-12422c643e9d
+              id: 995d8419-2282-4351-9bd0-7cf7b78f67a4
               name: direct_requests
               type: ares.strategies.direct_requests.DirectRequests
               input_path: assets/attack_goals.json
               output_path: assets/direct_requests.json
+            human_jailbreak:
+              id: 16519113-3873-46ec-840d-9b8c12773564
+              name: human_jailbreak
+              type: ares_human_jailbreak.strategies.human_jailbreak.HumanJailbreak
+              input_path: assets/attack_goals.json
+              output_path: assets/human_jailbreak.json
+              jailbreaks_path: assets/human_jailbreaks.json
             probes.encoding.InjectROT13:
-              id: c7e51573-6bf9-4c5f-9b3c-badba81d80dc
+              id: 0ed4ef3f-458a-4fc5-ae74-7663a6b262da
               name: probes.encoding.InjectROT13
               type: ares_garak.strategies.encoding.EncodingStrategy
               input_path: assets/attack_goals.json
               output_path: assets/garak_InjectROT13.json
               probe: probes.encoding.InjectROT13
           evaluation:
-            id: 6e52cf35-9a35-4d41-b0c3-bdc3427c1753
-            name: READIEvaluator
-            type: readi_eval.READIEvaluator
+            id: fb73eb28-888d-429c-a544-b049855fdd87
+            name: KeywordEvaluator
+            type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
+            keyword_list_or_path: assets/advbench_refusal_keywords.json
       prompts: assets/pii-seeds.csv

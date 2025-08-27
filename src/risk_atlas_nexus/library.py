@@ -1319,11 +1319,11 @@ class RiskAtlasNexus:
 
         return results
 
-    def execute_ares_evaluation(self, risk_group: str):
+    def execute_ares_evaluation(self, risks: List[Risk]):
         """Execute evaluation using the ARES API
 
         Args:
-            risk_group (str): risk attack group id
+            risks (str): A list of potential risk attack instances
         """
 
         # Load all risk-to-ares mappings
@@ -1336,17 +1336,25 @@ class RiskAtlasNexus:
             )
         )
 
-        # find ares config for the given risk group
-        risk_group_to_ares_config = list(
+        # find ares config for the given risk_attack_id
+        risk_id_to_ares_configs = list(
             filter(
-                lambda risk_group_to_ares_config: risk_group_to_ares_config.risk_attack_group
-                == risk_group,
+                lambda risk_group_to_ares_config: risk_group_to_ares_config.risk_attack_id
+                in [risk.tag for risk in risks],
                 risk_group_to_ares_config_list.mappings,
             )
-        )[0]
+        )
 
-        ares_config = risk_group_to_ares_config.config.model_dump(by_alias=True)
-        ares_config.update(ares_config["red-teaming"].pop("intent_config"))
+        for risk_id_to_ares_config in risk_id_to_ares_configs:
+            ares_config = risk_id_to_ares_config.config.model_dump(by_alias=True)
+            ares_config.update(ares_config["red-teaming"].pop("intent_config"))
 
-        # Call ARES API
-        evaluate(config=Path(os.path.join(ARES_DIR, "run_config.yaml")))
+            with open(
+                os.path.join(ARES_DIR, "run_config.yaml"),
+                "+tw",
+                encoding="utf-8",
+            ) as config_file:
+                print(YAMLDumper().dumps(ares_config), file=config_file)
+
+            # Call ARES API
+            evaluate(config=Path(os.path.join(ARES_DIR, "run_config.yaml")))

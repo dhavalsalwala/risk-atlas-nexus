@@ -2141,8 +2141,7 @@ class KeywordEvaluator(AresEvaluator):
     )
 
     name: Optional[str] = Field(
-        default="KeywordEvaluator",
-        description="""name""",
+        default="keyword",
         json_schema_extra={
             "linkml_meta": {
                 "alias": "name",
@@ -2609,12 +2608,12 @@ class RiskGroupToARESConfig(Entity):
         {"from_schema": "https://ibm.github.io/risk-atlas-nexus/ontology/ares"}
     )
 
-    risk_attack_group: str = Field(
+    risk_attack_id: str = Field(
         default=...,
         description="""The path to the prompts file""",
         json_schema_extra={
             "linkml_meta": {
-                "alias": "risk_attack_group",
+                "alias": "risk_attack_id",
                 "domain_of": ["RiskGroupToARESConfig"],
             }
         },

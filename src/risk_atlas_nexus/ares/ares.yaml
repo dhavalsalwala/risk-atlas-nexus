@@ -193,6 +193,7 @@ classes:
 
   KeywordEvaluator:
     is_a: AresEvaluator
+    name: keyword
     description: >-
       How to measure and report results. The evaluation node describes the evaluators assessing the performance of the
       target LM under attack.
@@ -290,7 +291,7 @@ classes:
     description: >-
       ARES uses intents to configure red-teaming.
     attributes:
-      risk_attack_group:
+      risk_attack_id:
         description: The path to the prompts file
         range: string
         required: true

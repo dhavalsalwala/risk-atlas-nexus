@@ -26,12 +26,230 @@ from risk_atlas_nexus.ares.ares_ontology import (
 )
 
 
-prompt_attacks_config = RiskGroupToARESConfig(
+direct_instructions_attack = RiskGroupToARESConfig(
     **{
         "id": str(uuid4()),
-        "name": "prompt_attacks",
+        "name": "direct_instructions_attack",
         "description": None,
-        "risk_attack_group": "ibm-risk-atlas-robustness-prompt-attacks",
+        "risk_attack_id": "direct-instructions-attack",
+        "config": ARESConfig(
+            **{
+                "id": str(uuid4()),
+                "name": "ares_default_config",
+                "description": None,
+                "target": {
+                    "huggingface": Connector(
+                        id=str(uuid4()),
+                        type="ares.connectors.huggingface.HuggingFaceConnector",
+                        model_configs=ModelConfig(
+                            pretrained_model_name_or_path="Qwen/Qwen2-0.5B-Instruct",
+                            torch_dtype="bfloat16",
+                        ),
+                        tokenizer_config=TokenizerConfig(
+                            pretrained_model_name_or_path="Qwen/Qwen2-0.5B-Instruct",
+                            padding_side="left",
+                        ),
+                        generate_kwargs=GenerateKwargs(
+                            chat_template=ChatTemplate(
+                                return_tensors="pt",
+                                thinking=True,
+                                return_dict=True,
+                                add_generation_prompt=True,
+                            ),
+                            generate_params=GenerateParams(max_new_tokens=50),
+                        ),
+                        seed=42,
+                        device="auto",
+                    )
+                },
+                "red_teaming": RedTeaming(
+                    **{
+                        "id": str(uuid4()),
+                        "description": None,
+                        "intent": "owasp-llm-02",
+                        "intent_config": {
+                            "owasp-llm-02": AresIntent(
+                                id=str(uuid4()),
+                                description=None,
+                                goal=GenericAttackGoal(
+                                    **{
+                                        "id": str(uuid4()),
+                                        "base_path": "assets/attack_goal.json",
+                                        "output_path": "assets/attack_goals.json",
+                                    }
+                                ),
+                                strategy={
+                                    "direct_requests": DirectRequests(
+                                        **{
+                                            "id": str(uuid4()),
+                                            "input_path": "assets/attack_goals.json",
+                                            "output_path": "assets/direct_requests.json",
+                                        }
+                                    )
+                                },
+                                evaluation=KeywordEvaluator(**{"id": str(uuid4())}),
+                            )
+                        },
+                        "prompts": "assets/pii-seeds.csv",
+                    }
+                ),
+            }
+        ),
+    }
+)
+
+encoded_interactions_attack = RiskGroupToARESConfig(
+    **{
+        "id": str(uuid4()),
+        "name": "encoded_interactions_attack",
+        "description": None,
+        "risk_attack_id": "encoded-interactions-attack",
+        "config": ARESConfig(
+            **{
+                "id": str(uuid4()),
+                "name": "ares_default_config",
+                "description": None,
+                "target": {
+                    "huggingface": Connector(
+                        id=str(uuid4()),
+                        type="ares.connectors.huggingface.HuggingFaceConnector",
+                        model_configs=ModelConfig(
+                            pretrained_model_name_or_path="Qwen/Qwen2-0.5B-Instruct",
+                            torch_dtype="bfloat16",
+                        ),
+                        tokenizer_config=TokenizerConfig(
+                            pretrained_model_name_or_path="Qwen/Qwen2-0.5B-Instruct",
+                            padding_side="left",
+                        ),
+                        generate_kwargs=GenerateKwargs(
+                            chat_template=ChatTemplate(
+                                return_tensors="pt",
+                                thinking=True,
+                                return_dict=True,
+                                add_generation_prompt=True,
+                            ),
+                            generate_params=GenerateParams(max_new_tokens=50),
+                        ),
+                        seed=42,
+                        device="auto",
+                    )
+                },
+                "red_teaming": RedTeaming(
+                    **{
+                        "id": str(uuid4()),
+                        "description": None,
+                        "intent": "owasp-llm-02",
+                        "intent_config": {
+                            "owasp-llm-02": AresIntent(
+                                id=str(uuid4()),
+                                description=None,
+                                goal=GenericAttackGoal(
+                                    **{
+                                        "id": str(uuid4()),
+                                        "base_path": "assets/attack_goal.json",
+                                        "output_path": "assets/attack_goals.json",
+                                    }
+                                ),
+                                strategy={
+                                    "probes.encoding.InjectROT13": InjectASCII(
+                                        **{
+                                            "id": str(uuid4()),
+                                            "probe": "probes.encoding.InjectROT13",
+                                            "input_path": "assets/attack_goals.json",
+                                            "output_path": "assets/garak_InjectROT13.json",
+                                        }
+                                    ),
+                                },
+                                evaluation=KeywordEvaluator(**{"id": str(uuid4())}),
+                            )
+                        },
+                        "prompts": "assets/pii-seeds.csv",
+                    }
+                ),
+            }
+        ),
+    }
+)
+
+social_hacking_attack = RiskGroupToARESConfig(
+    **{
+        "id": str(uuid4()),
+        "name": "social_hacking_attack",
+        "description": None,
+        "risk_attack_id": "social-hacking-attack",
+        "config": ARESConfig(
+            **{
+                "id": str(uuid4()),
+                "name": "ares_default_config",
+                "description": None,
+                "target": {
+                    "huggingface": Connector(
+                        id=str(uuid4()),
+                        type="ares.connectors.huggingface.HuggingFaceConnector",
+                        model_configs=ModelConfig(
+                            pretrained_model_name_or_path="Qwen/Qwen2-0.5B-Instruct",
+                            torch_dtype="bfloat16",
+                        ),
+                        tokenizer_config=TokenizerConfig(
+                            pretrained_model_name_or_path="Qwen/Qwen2-0.5B-Instruct",
+                            padding_side="left",
+                        ),
+                        generate_kwargs=GenerateKwargs(
+                            chat_template=ChatTemplate(
+                                return_tensors="pt",
+                                thinking=True,
+                                return_dict=True,
+                                add_generation_prompt=True,
+                            ),
+                            generate_params=GenerateParams(max_new_tokens=50),
+                        ),
+                        seed=42,
+                        device="auto",
+                    )
+                },
+                "red_teaming": RedTeaming(
+                    **{
+                        "id": str(uuid4()),
+                        "description": None,
+                        "intent": "owasp-llm-02",
+                        "intent_config": {
+                            "owasp-llm-02": AresIntent(
+                                id=str(uuid4()),
+                                description=None,
+                                goal=GenericAttackGoal(
+                                    **{
+                                        "id": str(uuid4()),
+                                        "base_path": "assets/attack_goal.json",
+                                        "output_path": "assets/attack_goals.json",
+                                    }
+                                ),
+                                strategy={
+                                    "human_jailbreak": HumanJailbreak(
+                                        **{
+                                            "id": str(uuid4()),
+                                            "input_path": "assets/attack_goals.json",
+                                            "output_path": "assets/human_jailbreak.json",
+                                            "jailbreaks_path": "assets/human_jailbreaks.json",
+                                        }
+                                    ),
+                                },
+                                evaluation=KeywordEvaluator(**{"id": str(uuid4())}),
+                            )
+                        },
+                        "prompts": "assets/pii-seeds.csv",
+                    }
+                ),
+            }
+        ),
+    }
+)
+
+specialized_tokens_attack = RiskGroupToARESConfig(
+    **{
+        "id": str(uuid4()),
+        "name": "specialized_tokens_attack",
+        "description": None,
+        "risk_attack_id": "specialized-tokens-attack",
         "config": ARESConfig(
             **{
                 "id": str(uuid4()),
@@ -103,7 +321,7 @@ prompt_attacks_config = RiskGroupToARESConfig(
                                         }
                                     ),
                                 },
-                                evaluation=READIEvaluator(**{"id": str(uuid4())}),
+                                evaluation=KeywordEvaluator(**{"id": str(uuid4())}),
                             )
                         },
                         "prompts": "assets/pii-seeds.csv",
@@ -120,6 +338,15 @@ with open(
     encoding="utf-8",
 ) as output_file:
     print(
-        YAMLDumper().dumps(RiskGroupToARESConfigList(mappings=[prompt_attacks_config])),
+        YAMLDumper().dumps(
+            RiskGroupToARESConfigList(
+                mappings=[
+                    direct_instructions_attack,
+                    encoded_interactions_attack,
+                    social_hacking_attack,
+                    specialized_tokens_attack,
+                ]
+            )
+        ),
         file=output_file,
     )
