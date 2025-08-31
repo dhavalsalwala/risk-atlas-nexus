@@ -1,0 +1,29 @@
+2025-08-31 00:50:58,958 - INFO - Loading faiss.
+2025-08-31 00:50:58,987 - INFO - Successfully loaded faiss.
+2025-08-31 00:51:04,416 - INFO - ARES evaluation started.
+2025-08-31 00:51:31,561 - INFO - Loading faiss.
+2025-08-31 00:51:31,591 - INFO - Successfully loaded faiss.
+2025-08-31 00:51:36,878 - INFO - ARES evaluation started.
+2025-08-31 00:52:07,382 - INFO - Loading faiss.
+2025-08-31 00:52:07,412 - INFO - Successfully loaded faiss.
+2025-08-31 00:52:12,743 - INFO - ARES evaluation started.
+2025-08-31 00:54:55,894 - INFO - Loading faiss.
+2025-08-31 00:54:55,923 - INFO - Successfully loaded faiss.
+2025-08-31 00:55:01,363 - INFO - ARES evaluation started.
+2025-08-31 00:55:52,833 - INFO - Loading faiss.
+2025-08-31 00:55:52,863 - INFO - Successfully loaded faiss.
+2025-08-31 00:56:46,891 - INFO - Loading faiss.
+2025-08-31 00:56:46,920 - INFO - Successfully loaded faiss.
+2025-08-31 00:57:09,330 - INFO - Loading faiss.
+2025-08-31 00:57:09,360 - INFO - Successfully loaded faiss.
+2025-08-31 00:58:39,825 - INFO - Loading faiss.
+2025-08-31 00:58:39,855 - INFO - Successfully loaded faiss.
+2025-08-31 00:59:25,217 - INFO - Loading faiss.
+2025-08-31 00:59:25,247 - INFO - Successfully loaded faiss.
+2025-08-31 01:00:12,603 - INFO - Loading faiss.
+2025-08-31 01:00:12,633 - INFO - Successfully loaded faiss.
+2025-08-31 01:00:54,011 - INFO - Loading faiss.
+2025-08-31 01:00:54,025 - INFO - Successfully loaded faiss.
+2025-08-31 01:00:58,236 - INFO - ARES evaluation started.
+2025-08-31 01:00:58,244 - ERROR - prompts error for assets/pii-seeds.csv.
+2025-08-31 01:00:58,244 - ERROR - Invalid configuration: 'prompts error for assets/pii-seeds.csv.'.

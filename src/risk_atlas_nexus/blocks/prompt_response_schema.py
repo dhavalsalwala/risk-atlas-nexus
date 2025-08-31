@@ -8,6 +8,15 @@ LIST_OF_STR_SCHEMA = {
     "items": {"enum": None},
 }
 
+LIST_OF_GOAL_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {"goal": {"type": "string"}, "label": {"type": "number"}},
+        "required": ["goal", "label"],
+    },
+}
+
 QUESTIONNAIRE_OUTPUT_SCHEMA = {
     "type": "object",
     "properties": {

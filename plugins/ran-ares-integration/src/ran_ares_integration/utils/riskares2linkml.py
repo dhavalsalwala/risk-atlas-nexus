@@ -1,10 +1,11 @@
 import os
 from uuid import uuid4
 
+import yaml
 from linkml_runtime.dumpers import YAMLDumper
 
-from risk_atlas_nexus.ares import ARES_DIR
-from risk_atlas_nexus.ares.ares_ontology import (
+from ran_ares_integration.data import DATA_DIR
+from ran_ares_integration.datamodel.risk_to_ares_ontology import (
     ARESConfig,
     AresIntent,
     ChatTemplate,
@@ -20,19 +21,19 @@ from risk_atlas_nexus.ares.ares_ontology import (
     ModelConfig,
     READIEvaluator,
     RedTeaming,
-    RiskGroupToARESConfig,
-    RiskGroupToARESConfigList,
+    RiskToARES,
+    RiskToARESMapping,
     TokenizerConfig,
 )
 
 
-direct_instructions_attack = RiskGroupToARESConfig(
+direct_instructions_attack = RiskToARESMapping(
     **{
         "id": str(uuid4()),
         "name": "direct_instructions_attack",
         "description": None,
-        "risk_attack_id": "direct-instructions-attack",
-        "config": ARESConfig(
+        "risk_id": "direct-instructions-attack",
+        "ares_config": ARESConfig(
             **{
                 "id": str(uuid4()),
                 "name": "ares_default_config",
@@ -98,13 +99,13 @@ direct_instructions_attack = RiskGroupToARESConfig(
     }
 )
 
-encoded_interactions_attack = RiskGroupToARESConfig(
+encoded_interactions_attack = RiskToARESMapping(
     **{
         "id": str(uuid4()),
         "name": "encoded_interactions_attack",
         "description": None,
-        "risk_attack_id": "encoded-interactions-attack",
-        "config": ARESConfig(
+        "risk_id": "encoded-interactions-attack",
+        "ares_config": ARESConfig(
             **{
                 "id": str(uuid4()),
                 "name": "ares_default_config",
@@ -171,13 +172,13 @@ encoded_interactions_attack = RiskGroupToARESConfig(
     }
 )
 
-social_hacking_attack = RiskGroupToARESConfig(
+social_hacking_attack = RiskToARESMapping(
     **{
         "id": str(uuid4()),
         "name": "social_hacking_attack",
         "description": None,
-        "risk_attack_id": "social-hacking-attack",
-        "config": ARESConfig(
+        "risk_id": "social-hacking-attack",
+        "ares_config": ARESConfig(
             **{
                 "id": str(uuid4()),
                 "name": "ares_default_config",
@@ -244,13 +245,13 @@ social_hacking_attack = RiskGroupToARESConfig(
     }
 )
 
-specialized_tokens_attack = RiskGroupToARESConfig(
+specialized_tokens_attack = RiskToARESMapping(
     **{
         "id": str(uuid4()),
         "name": "specialized_tokens_attack",
         "description": None,
-        "risk_attack_id": "specialized-tokens-attack",
-        "config": ARESConfig(
+        "risk_id": "specialized-tokens-attack",
+        "ares_config": ARESConfig(
             **{
                 "id": str(uuid4()),
                 "name": "ares_default_config",
@@ -333,13 +334,13 @@ specialized_tokens_attack = RiskGroupToARESConfig(
 )
 
 with open(
-    os.path.join(ARES_DIR, "risk_group_ares_mapping.yaml"),
+    os.path.join(DATA_DIR, "knowledge_graph", "risk_to_ares_mappings.yaml"),
     "+tw",
     encoding="utf-8",
 ) as output_file:
     print(
         YAMLDumper().dumps(
-            RiskGroupToARESConfigList(
+            RiskToARES(
                 mappings=[
                     direct_instructions_attack,
                     encoded_interactions_attack,

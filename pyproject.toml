@@ -54,8 +54,7 @@ dependencies = [
     "txtai",
     "jsonschema",
     "isort",
-    "pre-commit",
-    "git+ssh://git@github.com/IBM/ares.git"
+    "pre-commit"
 ]
 
 
@@ -72,6 +71,9 @@ docs = [
     "griffe-pydantic",
     "mkdocs-awesome-nav",
 ]
+
+[project.scripts]
+ran-plugin = "risk_atlas_nexus.plugins:app"
 
 [tool.isort]
 skip_glob = ["vrisk-atlas-nexus/*"]

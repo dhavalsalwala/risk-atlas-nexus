@@ -1,24 +1,24 @@
-import json
 import os
+import subprocess
+import sys
+import tempfile
 from importlib.metadata import version
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
-from ares.cli import evaluate
 from jinja2 import Template
 from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import YAMLDumper
 from linkml_runtime.loaders import yaml_loader
 from sssom_schema import Mapping
 
-from risk_atlas_nexus.ares import ARES_DIR
-
 
 # workaround for txtai
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 os.environ["OMP_NUM_THREADS"] = "1"
 
+from linkml_runtime.loaders import yaml_loader
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
     AiEval,
@@ -30,7 +30,6 @@ from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     RiskIncident,
     RiskTaxonomy,
 )
-from risk_atlas_nexus.ares.ares_ontology import RiskGroupToARESConfigList
 from risk_atlas_nexus.blocks.inference import InferenceEngine
 from risk_atlas_nexus.blocks.prompt_builder import (
     FewShotPromptBuilder,
@@ -573,8 +572,8 @@ class RiskAtlasNexus:
                 )
 
         risk_detector = GenericRiskDetector(
-            risks=cls._risk_explorer.get_all_risks(set_taxonomy),
             inference_engine=inference_engine,
+            risks=cls._risk_explorer.get_all_risks(set_taxonomy),
             cot_examples=processed_examples,
             max_risk=max_risk,
         )
@@ -1319,42 +1318,101 @@ class RiskAtlasNexus:
 
         return results
 
-    def execute_ares_evaluation(self, risks: List[Risk]):
-        """Execute evaluation using the ARES API
+    def run_ares_evaluation_from_usecase(
+        cls,
+        usecase: str,
+        inference_engine: InferenceEngine,
+        taxonomy: Optional[str] = None,
+        cot_examples: Optional[Dict[str, List]] = None,
+        max_risk: Optional[int] = None,
+        zero_shot_only: bool = False,
+    ) -> List[List[Risk]]:
+        """Identify potential risks from a usecase description
 
         Args:
-            risks (str): A list of potential risk attack instances
+            usecases (List[str]):
+                A List of strings describing AI usecases
+            inference_engine (InferenceEngine):
+                An LLM inference engine to infer risks from the usecases.
+            taxonomy (str, optional):
+                The string label for a taxonomy. If not specified, the system will use "ibm-ai-risk-atlas" as the default taxonomy.
+            cot_examples (Dict[str, List], optional):
+                If the user wants to improve risk identification via a Few-shot approach, `cot_examples` can be
+                provided with the desired taxonomy as key. Please follow the example template at src/risk_atlas_nexus/data/templates/risk_generation_cot.json.
+                If the `cot_examples` is omitted, the API default to a Zero-Shot approach.
+            max_risk (int, optional):
+                The maximum number of risks to extract. Pass None to allow the inference engine to determine the number of risks. Defaults to None.
+            zero_shot_only (bool): If enabled, this flag allows the system to perform Zero Shot Risk identification, and the field `cot_examples` will be ignored.
+        Returns:
+            List[List[Risk]]:
+                Result containing a list of risks
         """
+        from ran_ares_integration.data import DATA_DIR
+        from ran_ares_integration.datamodel.risk_to_ares_ontology import (
+            RiskToARES,
+            RiskToARESMapping,
+        )
+
+        # risks = cls.identify_ai_tasks_from_usecases(
+        #     [usecase],
+        #     inference_engine,
+        #     taxonomy,
+        #     cot_examples,
+        #     max_risk,
+        #     zero_shot_only,
+        # )
+
+        risks = [
+            risk
+            for risk in cls._risk_explorer.get_all_risks("ibm-risk-atlas")
+            if risk.tag.endswith("-attack")
+        ]
 
         # Load all risk-to-ares mappings
-        risk_group_to_ares_config_list: RiskGroupToARESConfigList = (
-            yaml_loader.load_any(
-                source=yaml_loader.load_as_dict(
-                    source=os.path.join(ARES_DIR, "risk_group_ares_mapping.yaml")
-                ),
-                target_class=RiskGroupToARESConfigList,
-            )
+        risk_to_ares: RiskToARES = yaml_loader.load_any(
+            source=yaml_loader.load_as_dict(
+                source=os.path.join(
+                    DATA_DIR, "knowledge_graph", "risk_to_ares_mappings.yaml"
+                )
+            ),
+            target_class=RiskToARES,
         )
 
-        # find ares config for the given risk_attack_id
-        risk_id_to_ares_configs = list(
+        # find risk_to_ares mappings for the given risks
+        risk_to_ares_mappings: List[RiskToARESMapping] = list(
             filter(
-                lambda risk_group_to_ares_config: risk_group_to_ares_config.risk_attack_id
+                lambda risk_to_ares: risk_to_ares.risk_id
                 in [risk.tag for risk in risks],
-                risk_group_to_ares_config_list.mappings,
+                risk_to_ares.mappings,
             )
         )
 
-        for risk_id_to_ares_config in risk_id_to_ares_configs:
-            ares_config = risk_id_to_ares_config.config.model_dump(by_alias=True)
+        for mapping in risk_to_ares_mappings[0:1]:
+            ares_config = mapping.ares_config.model_dump(by_alias=True)
             ares_config.update(ares_config["red-teaming"].pop("intent_config"))
 
-            with open(
-                os.path.join(ARES_DIR, "run_config.yaml"),
-                "+tw",
-                encoding="utf-8",
+            # Write ARES config to a tmp file system
+            tmp_dir = tempfile.gettempdir()
+
+            # ARES expects connectors.yaml at the same location as config file.
+            with Path(os.path.join(tmp_dir, "connectors.yaml")).open(
+                "+tw"
+            ) as config_file:
+                config_file.write(
+                    Path(os.path.join(DATA_DIR, "connectors.yaml")).read_text()
+                )
+
+            with Path(os.path.join(tmp_dir, "run_config.yaml")).open(
+                "+tw"
             ) as config_file:
                 print(YAMLDumper().dumps(ares_config), file=config_file)
 
-            # Call ARES API
-            evaluate(config=Path(os.path.join(ARES_DIR, "run_config.yaml")))
+            # Run ARES evaluation
+            # evaluate(Path(config_file.name))
+            subprocess.check_call(
+                [
+                    "ares",
+                    "evaluate",
+                    config_file.name,
+                ]
+            )

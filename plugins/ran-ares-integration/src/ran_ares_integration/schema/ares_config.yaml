@@ -1,4 +1,4 @@
-id: https://ibm.github.io/risk-atlas-nexus/ontology/ares
+id: https://ibm.github.io/ran-ares-integration/ontology/ares_config
 name: ares
 version: 0.0.1
 description:
@@ -7,7 +7,7 @@ default_curi_maps:
   - semweb_context
 imports:
   - linkml:types
-  - ../ai_risk_ontology/schema/common
+  - common
 prefixes:
   linkml: https://w3id.org/linkml/
 default_range: string
@@ -188,11 +188,15 @@ classes:
 
   KeywordEvaluator:
     is_a: AresEvaluator
-    name: keyword
     description: >-
       How to measure and report results. The evaluation node describes the evaluators assessing the performance of the
       target LM under attack.
     attributes:
+      name:
+        description: name
+        range: string
+        required: true
+        ifabsent: keyword
       type:
         description: type
         range: string
@@ -260,52 +264,6 @@ classes:
         description: The path to the prompts file
         range: string
         required: true
-
-
-  ARESConfig:
-    is_a: Entity
-    description: >-
-      ARES uses intents to configure red-teaming.
-    attributes:
-      target:
-        description: The path to the prompts file
-        range: Connector
-        multivalued: true
-        inlined: true
-        inlined_as_list: false
-        required: true
-      red_teaming:
-        description: The path to the prompts file
-        range: RedTeaming
-        inlined: true
-        required: true
-        alias: red-teaming
-
-  RiskGroupToARESConfig:
-    is_a: Entity
-    description: >-
-      ARES uses intents to configure red-teaming.
-    attributes:
-      risk_attack_id:
-        description: The path to the prompts file
-        range: string
-        required: true
-      ares_config:
-        description: The path to the prompts file
-        range: ARESConfig
-        inlined: true
-        required: true
-
-  RiskGroupToARESConfigList:
-    tree_root: true
-    description: An umbrella object that holds the ontology class instances
-    attributes:
-      mappings:
-        description: A list of ares goals
-        multivalued: true
-        range: RiskGroupToARESConfig
-        inlined: true
-        inlined_as_list: true
 
   Connector:
     is_a: Entity
@@ -379,6 +337,25 @@ classes:
       max_new_tokens:
         description:
         range: integer
+
+  ARESConfig:
+    is_a: Entity
+    description: >-
+      ARES uses intents to configure red-teaming.
+    attributes:
+      target:
+        description: The path to the prompts file
+        range: Connector
+        multivalued: true
+        inlined: true
+        inlined_as_list: false
+        required: true
+      red_teaming:
+        description: The path to the prompts file
+        range: RedTeaming
+        inlined: true
+        required: true
+        alias: red-teaming
 
 slots:
   type:
