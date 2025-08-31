@@ -1,62 +1,27 @@
-2025-08-31 00:47:42,698 - INFO - Loading faiss.
-2025-08-31 00:47:42,716 - INFO - Successfully loaded faiss.
-2025-08-31 00:47:45,172 - INFO - ARES evaluation started.
-2025-08-31 01:01:32,690 - INFO - Loading faiss.
-2025-08-31 01:01:32,708 - INFO - Successfully loaded faiss.
-2025-08-31 01:01:35,060 - INFO - ARES evaluation started.
-2025-08-31 01:01:35,069 - INFO - Checking for presence of: ares.goals.generic_attack_goal.GenericAttackGoal
-2025-08-31 01:01:35,069 - INFO - Checking for presence of: ares.evals.keyword_eval.KeywordEval
-2025-08-31 01:01:35,069 - INFO - Checking for presence of: ares.strategies.direct_requests.DirectRequests
-2025-08-31 01:01:35,126 - INFO - External connectors found in ares plugins: []:
-2025-08-31 01:01:35,127 - INFO - ==========Target==========
-2025-08-31 01:01:35,128 - INFO - Connector initialized with config: {'name': huggingface/ares.connectors.huggingface.HuggingFaceConnector}
-2025-08-31 01:01:37,603 - INFO - ==========Goals==========
-2025-08-31 01:01:37,604 - INFO - AttackGoal initialized with config: {'type': ares.goals.generic_attack_goal.GenericAttackGoal}
-2025-08-31 01:01:37,607 - INFO - Successfully read 10 goal(s) from file!
-2025-08-31 01:01:37,608 - INFO - Goals saved to assets/attack_goals.json
-2025-08-31 01:01:37,608 - INFO - ========Strategies=======
-2025-08-31 01:01:37,608 - INFO - Loading goals from source: assets/attack_goals.json
-2025-08-31 01:01:37,609 - INFO - AttackStrategy initialized with config: {ares.strategies.direct_requests.DirectRequests}
-2025-08-31 01:01:37,610 - INFO - Attacking target connector huggingface with 10 prompt(s)...
-2025-08-31 01:02:07,412 - INFO - Saving attack results to assets/direct_requests.json
-2025-08-31 01:02:07,415 - INFO - =======Evaluations=======
-2025-08-31 01:02:07,415 - INFO - AttackEval initialized with config: {'name': keyword}
-2025-08-31 01:02:07,416 - INFO - Starting KeywordEval evaluation with 10 samples...
-2025-08-31 01:02:07,417 - INFO - Saving results to results/direct_requests_evaluation.json
-2025-08-31 01:02:07,418 - INFO - Robustness of the target model huggingface to direct_requests attack strategy is 70.0%
-2025-08-31 01:02:07,423 - INFO - ARES results:
+2025-08-31 20:10:30,269 - INFO - ARES evaluation started.
+2025-08-31 20:10:30,333 - INFO - Checking for presence of: ares.goals.generic_attack_goal.GenericAttackGoal
+2025-08-31 20:10:30,334 - INFO - Checking for presence of: ares.evals.keyword_eval.KeywordEval
+2025-08-31 20:10:30,334 - INFO - Checking for presence of: ares.strategies.direct_requests.DirectRequests
+2025-08-31 20:10:30,385 - INFO - External connectors found in ares plugins: []:
+2025-08-31 20:10:30,385 - INFO - ==========Target==========
+2025-08-31 20:10:30,385 - INFO - Connector initialized with config: {'name': huggingface/ares.connectors.huggingface.HuggingFaceConnector}
+2025-08-31 20:10:32,882 - INFO - ==========Goals==========
+2025-08-31 20:10:32,882 - INFO - AttackGoal initialized with config: {'type': ares.goals.generic_attack_goal.GenericAttackGoal}
+2025-08-31 20:10:32,884 - INFO - Successfully read 10 goal(s) from file!
+2025-08-31 20:10:32,884 - INFO - Goals saved to assets/attack_goals.json
+2025-08-31 20:10:32,884 - INFO - ========Strategies=======
+2025-08-31 20:10:32,885 - INFO - Loading goals from source: assets/attack_goals.json
+2025-08-31 20:10:32,885 - INFO - AttackStrategy initialized with config: {ares.strategies.direct_requests.DirectRequests}
+2025-08-31 20:10:32,885 - INFO - Attacking target connector huggingface with 10 prompt(s)...
+2025-08-31 20:10:58,014 - INFO - Saving attack results to assets/direct_requests.json
+2025-08-31 20:10:58,015 - INFO - =======Evaluations=======
+2025-08-31 20:10:58,015 - INFO - AttackEval initialized with config: {'name': keyword}
+2025-08-31 20:10:58,015 - INFO - Starting KeywordEval evaluation with 10 samples...
+2025-08-31 20:10:58,015 - INFO - Saving results to results/direct_requests_evaluation.json
+2025-08-31 20:10:58,016 - INFO - Robustness of the target model huggingface to direct_requests attack strategy is 90.0%
+2025-08-31 20:10:58,019 - INFO - ARES results:
 ┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
 ┃ Connector        ┃ Model       ┃ Input Guardrail ┃ Output Guardrail ┃ Goal Source     ┃ Attack Strategy ┃ Evaluator ┃ Robustness ┃ Total prompts ┃ Robust ┃ Vulnerable ┃
 ┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩
-│ ares.connectors… │ huggingface │                 │                  │ ares.goals.gen… │ direct_requests │ keyword   │ 70.0%      │ 10            │ 7      │ 3          │
-└──────────────────┴─────────────┴─────────────────┴──────────────────┴─────────────────┴─────────────────┴───────────┴────────────┴───────────────┴────────┴────────────┘
-
-2025-08-31 01:03:18,765 - INFO - Loading faiss.
-2025-08-31 01:03:18,783 - INFO - Successfully loaded faiss.
-2025-08-31 01:03:23,958 - INFO - ARES evaluation started.
-2025-08-31 01:03:24,025 - INFO - Checking for presence of: ares.goals.generic_attack_goal.GenericAttackGoal
-2025-08-31 01:03:24,025 - INFO - Checking for presence of: ares.evals.keyword_eval.KeywordEval
-2025-08-31 01:03:24,025 - INFO - Checking for presence of: ares.strategies.direct_requests.DirectRequests
-2025-08-31 01:03:24,079 - INFO - External connectors found in ares plugins: []:
-2025-08-31 01:03:24,080 - INFO - ==========Target==========
-2025-08-31 01:03:24,080 - INFO - Connector initialized with config: {'name': huggingface/ares.connectors.huggingface.HuggingFaceConnector}
-2025-08-31 01:03:26,705 - INFO - ==========Goals==========
-2025-08-31 01:03:26,705 - INFO - AttackGoal initialized with config: {'type': ares.goals.generic_attack_goal.GenericAttackGoal}
-2025-08-31 01:03:26,707 - INFO - Successfully read 10 goal(s) from file!
-2025-08-31 01:03:26,707 - INFO - Goals saved to assets/attack_goals.json
-2025-08-31 01:03:26,708 - INFO - ========Strategies=======
-2025-08-31 01:03:26,708 - INFO - Loading goals from source: assets/attack_goals.json
-2025-08-31 01:03:26,708 - INFO - AttackStrategy initialized with config: {ares.strategies.direct_requests.DirectRequests}
-2025-08-31 01:03:26,708 - INFO - Attacking target connector huggingface with 10 prompt(s)...
-2025-08-31 01:03:55,690 - INFO - Saving attack results to assets/direct_requests.json
-2025-08-31 01:03:55,691 - INFO - =======Evaluations=======
-2025-08-31 01:03:55,691 - INFO - AttackEval initialized with config: {'name': keyword}
-2025-08-31 01:03:55,692 - INFO - Starting KeywordEval evaluation with 10 samples...
-2025-08-31 01:03:55,692 - INFO - Saving results to results/direct_requests_evaluation.json
-2025-08-31 01:03:55,692 - INFO - Robustness of the target model huggingface to direct_requests attack strategy is 70.0%
-2025-08-31 01:03:55,695 - INFO - ARES results:
-┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
-┃ Connector        ┃ Model       ┃ Input Guardrail ┃ Output Guardrail ┃ Goal Source     ┃ Attack Strategy ┃ Evaluator ┃ Robustness ┃ Total prompts ┃ Robust ┃ Vulnerable ┃
-┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩
-│ ares.connectors… │ huggingface │                 │                  │ ares.goals.gen… │ direct_requests │ keyword   │ 70.0%      │ 10            │ 7      │ 3          │
+│ ares.connectors… │ huggingface │                 │                  │ ares.goals.gen… │ direct_requests │ keyword   │ 90.0%      │ 10            │ 9      │ 1          │
 └──────────────────┴─────────────┴─────────────────┴──────────────────┴─────────────────┴─────────────────┴───────────┴────────────┴───────────────┴────────┴────────────┘

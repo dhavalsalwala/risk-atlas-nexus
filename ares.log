@@ -27,3 +27,32 @@
 2025-08-31 01:00:58,236 - INFO - ARES evaluation started.
 2025-08-31 01:00:58,244 - ERROR - prompts error for assets/pii-seeds.csv.
 2025-08-31 01:00:58,244 - ERROR - Invalid configuration: 'prompts error for assets/pii-seeds.csv.'.
+2025-08-31 19:58:31,566 - INFO - ARES evaluation started.
+2025-08-31 19:58:31,635 - INFO - Checking for presence of: ares.goals.generic_attack_goal.GenericAttackGoal
+2025-08-31 19:58:31,635 - INFO - Checking for presence of: ares.evals.keyword_eval.KeywordEval
+2025-08-31 19:58:31,635 - INFO - Checking for presence of: ares.strategies.direct_requests.DirectRequests
+2025-08-31 19:58:31,689 - INFO - External connectors found in ares plugins: []:
+2025-08-31 19:58:31,689 - INFO - ==========Target==========
+2025-08-31 19:58:31,689 - INFO - Connector initialized with config: {'name': huggingface/ares.connectors.huggingface.HuggingFaceConnector}
+2025-08-31 19:58:34,595 - INFO - ==========Goals==========
+2025-08-31 19:58:34,595 - INFO - AttackGoal initialized with config: {'type': ares.goals.generic_attack_goal.GenericAttackGoal}
+2025-08-31 19:58:34,595 - ERROR - Extension not supported extension='yaml'
+2025-08-31 19:59:39,498 - INFO - ARES evaluation started.
+2025-08-31 19:59:39,580 - INFO - Checking for presence of: ares.goals.generic_attack_goal.GenericAttackGoal
+2025-08-31 19:59:39,580 - INFO - Checking for presence of: ares.evals.keyword_eval.KeywordEval
+2025-08-31 19:59:39,580 - INFO - Checking for presence of: ares.strategies.direct_requests.DirectRequests
+2025-08-31 19:59:39,635 - INFO - External connectors found in ares plugins: []:
+2025-08-31 19:59:39,635 - INFO - ==========Target==========
+2025-08-31 19:59:39,635 - INFO - Connector initialized with config: {'name': huggingface/ares.connectors.huggingface.HuggingFaceConnector}
+2025-08-31 19:59:42,135 - INFO - ==========Goals==========
+2025-08-31 19:59:42,135 - INFO - AttackGoal initialized with config: {'type': ares.goals.generic_attack_goal.GenericAttackGoal}
+2025-08-31 19:59:42,137 - INFO - Successfully read 10 goal(s) from file!
+2025-08-31 19:59:42,137 - INFO - Goals saved to assets/attack_goals.json
+2025-08-31 19:59:42,137 - INFO - ========Strategies=======
+2025-08-31 19:59:42,138 - INFO - Loading goals from source: assets/attack_goals.json
+2025-08-31 19:59:42,138 - INFO - AttackStrategy initialized with config: {ares.strategies.direct_requests.DirectRequests}
+2025-08-31 19:59:42,138 - INFO - Attacking target connector huggingface with 10 prompt(s)...
+2025-08-31 20:00:06,847 - INFO - Saving attack results to assets/direct_requests.json
+2025-08-31 20:00:06,848 - INFO - =======Evaluations=======
+2025-08-31 20:00:06,848 - INFO - AttackEval initialized with config: {'name': keyword}
+2025-08-31 20:00:06,848 - ERROR - [Errno 2] No such file or directory: 'assets/advbench_refusal_keywords.json'

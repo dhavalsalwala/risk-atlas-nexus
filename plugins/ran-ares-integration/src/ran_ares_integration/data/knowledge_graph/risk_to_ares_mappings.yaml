@@ -50,7 +50,7 @@ mappings:
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
-      prompts: assets/pii-seeds.csv
+      prompts: seeds.csv
 - id: 6e095cef-f623-44aa-839b-ca8e7f74bde7
   name: encoded_interactions_attack
   risk_id: encoded-interactions-attack
@@ -103,7 +103,7 @@ mappings:
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
-      prompts: assets/pii-seeds.csv
+      prompts: seeds.csv
 - id: 1fc1d8fd-c271-480e-bcda-ca991d9d1a33
   name: social_hacking_attack
   risk_id: social-hacking-attack
@@ -156,7 +156,7 @@ mappings:
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
-      prompts: assets/pii-seeds.csv
+      prompts: seeds.csv
 - id: a76db093-9ba7-4cd0-be9d-aacedef92712
   name: specialized_tokens_attack
   risk_id: specialized-tokens-attack
@@ -220,4 +220,4 @@ mappings:
             type: ares.evals.keyword_eval.KeywordEval
             output_path: results/evaluation.json
             keyword_list_or_path: assets/advbench_refusal_keywords.json
-      prompts: assets/pii-seeds.csv
+      prompts: seeds.csv

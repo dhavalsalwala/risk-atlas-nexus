@@ -1,11 +1,12 @@
+import json
 import os
 import subprocess
-import sys
 import tempfile
 from importlib.metadata import version
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import pandas as pd
 import yaml
 from jinja2 import Template
 from linkml_runtime import SchemaView
@@ -19,7 +20,6 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 os.environ["OMP_NUM_THREADS"] = "1"
 
 from linkml_runtime.loaders import yaml_loader
-
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
     AiEval,
@@ -1323,26 +1323,23 @@ class RiskAtlasNexus:
         cls,
         usecase: str,
         inference_engine: InferenceEngine,
-        taxonomy: Optional[str] = None,
         cot_examples: Optional[Dict[str, List]] = None,
         max_risk: Optional[int] = None,
         zero_shot_only: bool = False,
     ) -> List[List[Risk]]:
-        """Identify potential risks from a usecase description
+        """Identify potential attack risks from a usecase description and the execute ARES evaluation
 
         Args:
             usecases (List[str]):
                 A List of strings describing AI usecases
             inference_engine (InferenceEngine):
                 An LLM inference engine to infer risks from the usecases.
-            taxonomy (str, optional):
-                The string label for a taxonomy. If not specified, the system will use "ibm-ai-risk-atlas" as the default taxonomy.
             cot_examples (Dict[str, List], optional):
                 If the user wants to improve risk identification via a Few-shot approach, `cot_examples` can be
                 provided with the desired taxonomy as key. Please follow the example template at src/risk_atlas_nexus/data/templates/risk_generation_cot.json.
                 If the `cot_examples` is omitted, the API default to a Zero-Shot approach.
             max_risk (int, optional):
-                The maximum number of risks to extract. Pass None to allow the inference engine to determine the number of risks. Defaults to None.
+                The maximum number of attack risks to extract. Pass None to allow the inference engine to determine the number of risks. Defaults to None.
             zero_shot_only (bool): If enabled, this flag allows the system to perform Zero Shot Risk identification, and the field `cot_examples` will be ignored.
         Returns:
             List[List[Risk]]:
@@ -1350,17 +1347,64 @@ class RiskAtlasNexus:
         """
         from ran_ares_integration.data import DATA_DIR
         from ran_ares_integration.datamodel.risk_to_ares_ontology import (
+            ARESConfig,
             RiskToARES,
             RiskToARESMapping,
         )
+        from ran_ares_integration.prompt_templates import ARES_GOALS_TEMPLATE
 
-        risks = cls.identify_ai_tasks_from_usecases(
-            [usecase],
-            inference_engine,
-            taxonomy,
-            cot_examples,
-            max_risk,
-            zero_shot_only,
+        type_check(
+            "<RANE023314BE>",
+            str,
+            allow_none=False,
+            usecase=usecase,
+        )
+        type_check(
+            "<RANE023314BE>",
+            InferenceEngine,
+            allow_none=False,
+            inference_engine=inference_engine,
+        )
+        type_check(
+            "<RAN80975498E>",
+            int,
+            allow_none=True,
+            max_risk=max_risk,
+        )
+
+        set_taxonomy = "ibm-risk-atlas"
+
+        processed_examples = None
+        if zero_shot_only:
+            logger.info(
+                f"The `zero_shot_only` flag is enabled. The system will use the Zero shot method. Any provided `cot_examples` will be disregarded.",
+            )
+        else:
+            # For the given taxonomy type, check if the user has provided 'cot_examples'. If not,
+            # retrieve the default cot examples from the master. If no examples exist in the master,
+            # set it as None.
+            processed_examples = (
+                cot_examples and cot_examples.get(set_taxonomy, None)
+            ) or RISK_IDENTIFICATION_COT.get(set_taxonomy, None)
+            if processed_examples is None:
+                logger.warning(
+                    f"<RAN47275F12W> Chain of Thought (CoT) examples were not provided, or do not exist in the master for this taxonomy. The API will use the Zero shot method. To improve the accuracy of risk identification, please provide CoT examples in `cot_examples` when calling this API. You may also consider raising an issue to permanently add these examples to the Risk Atlas Nexus master."
+                )
+
+        # Identified attack risks
+        risk_detector = GenericRiskDetector(
+            inference_engine=inference_engine,
+            risks=[
+                risk
+                for risk in cls._risk_explorer.get_all_risks(set_taxonomy)
+                if risk.tag.endswith("-attack")
+            ],
+            cot_examples=processed_examples,
+            max_risk=max_risk,
+        )
+        risks = risk_detector.detect([usecase])[0]
+        logger.info(
+            f"Identfied Attack risks: {json.dumps([risk.name for risk in risks], indent=2)}"
         )
 
         # Load all risk-to-ares mappings
@@ -1382,12 +1426,42 @@ class RiskAtlasNexus:
             )
         )
 
-        for mapping in risk_to_ares_mappings[0:1]:
-            ares_config = mapping.ares_config.model_dump(by_alias=True)
-            ares_config.update(ares_config["red-teaming"].pop("intent_config"))
+        for mapping in risk_to_ares_mappings:
+            risk: Risk = next(filter(lambda risk: risk.tag == mapping.risk_id, risks))
+            logger.info(f"ARES mapping found for attack risk: {risk.name}")
+            logger.info(f"Generating attack seeds...")
+            goals = inference_engine.generate(
+                prompts=[
+                    Template(ARES_GOALS_TEMPLATE).render(
+                        risk_name=risk.name,
+                        risk_description=risk.description,
+                        risk_concern=risk.concern,
+                    )
+                ],
+                response_format={
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "prompt": {"type": "string"},
+                        },
+                        "required": ["prompt"],
+                    },
+                },
+                postprocessors=["json_object"],
+                verbose=False,
+            )[0]
+            logger.info(f"No. of attack seeds generated: {len(goals.prediction)}")
 
             # Write ARES config to a tmp file system
             tmp_dir = tempfile.gettempdir()
+
+            # Writing attack seeds to the tmp location
+            goal_file = Path(os.path.join(tmp_dir, "seeds.csv"))
+            pd.DataFrame(goals.prediction).rename(
+                columns={"prompt": "Behavior"}
+            ).to_csv(goal_file, index=False)
+            mapping.ares_config.red_teaming.prompts = str(goal_file)
 
             # ARES expects connectors.yaml at the same location as config file.
             with Path(os.path.join(tmp_dir, "connectors.yaml")).open(
@@ -1397,6 +1471,8 @@ class RiskAtlasNexus:
                     Path(os.path.join(DATA_DIR, "connectors.yaml")).read_text()
                 )
 
+            ares_config = mapping.ares_config.model_dump(by_alias=True)
+            ares_config.update(ares_config["red-teaming"].pop("intent_config"))
             with Path(os.path.join(tmp_dir, "run_config.yaml")).open(
                 "+tw"
             ) as config_file:
@@ -1411,3 +1487,5 @@ class RiskAtlasNexus:
                     config_file.name,
                 ]
             )
+
+            break
