@@ -1,8 +1,9 @@
 import subprocess
 import sys
 
-from risk_atlas_nexus.toolkit.logging import configure_logger
 from typer import Typer
+
+from risk_atlas_nexus.toolkit.logging import configure_logger
 
 
 app = Typer()
@@ -19,7 +20,7 @@ def install(plugin_name: str) -> None:
     logger.info("Installing plugin: %s", plugin_name)
 
     plugin_location = (
-        "git+ssh://git@github.com/IBM/ares.git#egg="
+        "git+ssh://git@github.com/IBM/risk-atlas-nexus.git#egg="
         + plugin_name
         + "&subdirectory=plugins/"
         + plugin_name
