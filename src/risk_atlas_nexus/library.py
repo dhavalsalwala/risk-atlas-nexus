@@ -20,7 +20,6 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 os.environ["OMP_NUM_THREADS"] = "1"
 
 from linkml_runtime.loaders import yaml_loader
-
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
     AiEval,
@@ -573,13 +572,21 @@ class RiskAtlasNexus:
                     f"<RAN47275F12W> Chain of Thought (CoT) examples were not provided, or do not exist in the master for this taxonomy. The API will use the Zero shot method. To improve the accuracy of risk identification, please provide CoT examples in `cot_examples` when calling this API. You may also consider raising an issue to permanently add these examples to the Risk Atlas Nexus master."
                 )
 
+        if set_taxonomy == "ibm-attack-risk-atlas":
+            risks = [
+                risk
+                for risk in cls._risk_explorer.get_all_risks("ibm-risk-atlas")
+                if risk.tag.endswith("-attack")
+            ]
+        else:
+            risks = cls._risk_explorer.get_all_risks(set_taxonomy)
+
         risk_detector = GenericRiskDetector(
             inference_engine=inference_engine,
-            risks=cls._risk_explorer.get_all_risks(set_taxonomy),
+            risks=risks,
             cot_examples=processed_examples,
             max_risk=max_risk,
         )
-
         return risk_detector.detect(usecases)
 
     def get_all_taxonomies(cls):
@@ -1320,31 +1327,19 @@ class RiskAtlasNexus:
 
         return results
 
-    def run_ares_evaluation_from_usecase(
-        cls,
-        usecase: str,
-        inference_engine: InferenceEngine,
-        cot_examples: Optional[Dict[str, List]] = None,
-        max_risk: Optional[int] = None,
-        zero_shot_only: bool = False,
+    def run_ares_evaluation_on_risks(
+        cls, risks: List[Risk], inference_engine: InferenceEngine
     ) -> List[List[Risk]]:
-        """Identify potential attack risks from a usecase description and the execute ARES evaluation
+        """Submit potential attack risks for ARES red-teaming evaluation
 
         Args:
-            usecases (List[str]):
-                A List of strings describing AI usecases
+            risks (List[Risk]):
+                A List of attack risks
             inference_engine (InferenceEngine):
                 An LLM inference engine to infer risks from the usecases.
-            cot_examples (Dict[str, List], optional):
-                If the user wants to improve risk identification via a Few-shot approach, `cot_examples` can be
-                provided with the desired taxonomy as key. Please follow the example template at src/risk_atlas_nexus/data/templates/risk_generation_cot.json.
-                If the `cot_examples` is omitted, the API default to a Zero-Shot approach.
-            max_risk (int, optional):
-                The maximum number of attack risks to extract. Pass None to allow the inference engine to determine the number of risks. Defaults to None.
-            zero_shot_only (bool): If enabled, this flag allows the system to perform Zero Shot Risk identification, and the field `cot_examples` will be ignored.
+
         Returns:
-            List[List[Risk]]:
-                Result containing a list of risks
+            None
         """
         from ran_ares_integration.data import DATA_DIR
         from ran_ares_integration.datamodel.risk_to_ares_ontology import (
@@ -1353,58 +1348,8 @@ class RiskAtlasNexus:
         )
         from ran_ares_integration.prompt_templates import ARES_GOALS_TEMPLATE
 
-        type_check(
-            "<RANE023314BE>",
-            str,
-            allow_none=False,
-            usecase=usecase,
-        )
-        type_check(
-            "<RANE023314BE>",
-            InferenceEngine,
-            allow_none=False,
-            inference_engine=inference_engine,
-        )
-        type_check(
-            "<RAN80975498E>",
-            int,
-            allow_none=True,
-            max_risk=max_risk,
-        )
-
-        set_taxonomy = "ibm-risk-atlas"
-
-        processed_examples = None
-        if zero_shot_only:
-            logger.info(
-                f"The `zero_shot_only` flag is enabled. The system will use the Zero shot method. Any provided `cot_examples` will be disregarded.",
-            )
-        else:
-            # For the given taxonomy type, check if the user has provided 'cot_examples'. If not,
-            # retrieve the default cot examples from the master. If no examples exist in the master,
-            # set it as None.
-            processed_examples = (
-                cot_examples and cot_examples.get(set_taxonomy, None)
-            ) or RISK_IDENTIFICATION_COT.get(set_taxonomy, None)
-            if processed_examples is None:
-                logger.warning(
-                    f"<RAN47275F12W> Chain of Thought (CoT) examples were not provided, or do not exist in the master for this taxonomy. The API will use the Zero shot method. To improve the accuracy of risk identification, please provide CoT examples in `cot_examples` when calling this API. You may also consider raising an issue to permanently add these examples to the Risk Atlas Nexus master."
-                )
-
-        # Identified attack risks
-        risk_detector = GenericRiskDetector(
-            inference_engine=inference_engine,
-            risks=[
-                risk
-                for risk in cls._risk_explorer.get_all_risks(set_taxonomy)
-                if risk.tag.endswith("-attack")
-            ],
-            cot_examples=processed_examples,
-            max_risk=max_risk,
-        )
-        risks = risk_detector.detect([usecase])[0]
         logger.info(
-            f"Identfied Attack risks: {json.dumps([risk.name for risk in risks], indent=2)}"
+            f"Submitted Attack risks: {json.dumps([risk.name for risk in risks], indent=2)}"
         )
 
         # Load all risk-to-ares mappings

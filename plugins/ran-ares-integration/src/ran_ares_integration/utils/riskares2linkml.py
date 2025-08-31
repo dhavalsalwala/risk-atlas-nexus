@@ -75,16 +75,15 @@ direct_instructions_attack = RiskToARESMapping(
                                 goal=GenericAttackGoal(
                                     **{
                                         "id": str(uuid4()),
-                                        "base_path": "assets/attack_goal.json",
-                                        "output_path": "assets/attack_goals.json",
+                                        "output_path": "assets/attack_goals_output.json",
                                     }
                                 ),
                                 strategy={
                                     "direct_requests": DirectRequests(
                                         **{
                                             "id": str(uuid4()),
-                                            "input_path": "assets/attack_goals.json",
-                                            "output_path": "assets/direct_requests.json",
+                                            "input_path": "assets/attack_goals_output.json",
+                                            "output_path": "assets/direct_requests_output.json",
                                         }
                                     )
                                 },
@@ -147,8 +146,7 @@ encoded_interactions_attack = RiskToARESMapping(
                                 goal=GenericAttackGoal(
                                     **{
                                         "id": str(uuid4()),
-                                        "base_path": "assets/attack_goal.json",
-                                        "output_path": "assets/attack_goals.json",
+                                        "output_path": "assets/attack_goals_output.json",
                                     }
                                 ),
                                 strategy={
@@ -156,15 +154,15 @@ encoded_interactions_attack = RiskToARESMapping(
                                         **{
                                             "id": str(uuid4()),
                                             "probe": "probes.encoding.InjectROT13",
-                                            "input_path": "assets/attack_goals.json",
-                                            "output_path": "assets/garak_InjectROT13.json",
+                                            "input_path": "assets/attack_goals_output.json",
+                                            "output_path": "assets/garak_InjectROT13_output.json",
                                         }
                                     ),
                                 },
                                 evaluation=KeywordEvaluator(**{"id": str(uuid4())}),
                             )
                         },
-                        "prompts": "assets/pii-seeds.csv",
+                        "prompts": "seeds.csv",
                     }
                 ),
             }
@@ -220,16 +218,15 @@ social_hacking_attack = RiskToARESMapping(
                                 goal=GenericAttackGoal(
                                     **{
                                         "id": str(uuid4()),
-                                        "base_path": "assets/attack_goal.json",
-                                        "output_path": "assets/attack_goals.json",
+                                        "output_path": "assets/attack_goals_output.json",
                                     }
                                 ),
                                 strategy={
                                     "human_jailbreak": HumanJailbreak(
                                         **{
                                             "id": str(uuid4()),
-                                            "input_path": "assets/attack_goals.json",
-                                            "output_path": "assets/human_jailbreak.json",
+                                            "input_path": "assets/attack_goals_output.json",
+                                            "output_path": "assets/human_jailbreak_output.json",
                                             "jailbreaks_path": "assets/human_jailbreaks.json",
                                         }
                                     ),
@@ -237,7 +234,7 @@ social_hacking_attack = RiskToARESMapping(
                                 evaluation=KeywordEvaluator(**{"id": str(uuid4())}),
                             )
                         },
-                        "prompts": "assets/pii-seeds.csv",
+                        "prompts": "seeds.csv",
                     }
                 ),
             }
@@ -293,7 +290,6 @@ specialized_tokens_attack = RiskToARESMapping(
                                 goal=GenericAttackGoal(
                                     **{
                                         "id": str(uuid4()),
-                                        "base_path": "assets/attack_goal.json",
                                         "output_path": "assets/attack_goals.json",
                                     }
                                 ),
@@ -301,15 +297,15 @@ specialized_tokens_attack = RiskToARESMapping(
                                     "direct_requests": DirectRequests(
                                         **{
                                             "id": str(uuid4()),
-                                            "input_path": "assets/attack_goals.json",
-                                            "output_path": "assets/direct_requests.json",
+                                            "input_path": "assets/attack_goals_output.json",
+                                            "output_path": "assets/direct_requests_output.json",
                                         }
                                     ),
                                     "human_jailbreak": HumanJailbreak(
                                         **{
                                             "id": str(uuid4()),
-                                            "input_path": "assets/attack_goals.json",
-                                            "output_path": "assets/human_jailbreak.json",
+                                            "input_path": "assets/attack_goals_output.json",
+                                            "output_path": "assets/human_jailbreak_output.json",
                                             "jailbreaks_path": "assets/human_jailbreaks.json",
                                         }
                                     ),
