@@ -19,6 +19,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 os.environ["OMP_NUM_THREADS"] = "1"
 
 from linkml_runtime.loaders import yaml_loader
+
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
     AiEval,
@@ -1353,20 +1354,14 @@ class RiskAtlasNexus:
             RiskToARESMapping,
         )
 
-        # risks = cls.identify_ai_tasks_from_usecases(
-        #     [usecase],
-        #     inference_engine,
-        #     taxonomy,
-        #     cot_examples,
-        #     max_risk,
-        #     zero_shot_only,
-        # )
-
-        risks = [
-            risk
-            for risk in cls._risk_explorer.get_all_risks("ibm-risk-atlas")
-            if risk.tag.endswith("-attack")
-        ]
+        risks = cls.identify_ai_tasks_from_usecases(
+            [usecase],
+            inference_engine,
+            taxonomy,
+            cot_examples,
+            max_risk,
+            zero_shot_only,
+        )
 
         # Load all risk-to-ares mappings
         risk_to_ares: RiskToARES = yaml_loader.load_any(
