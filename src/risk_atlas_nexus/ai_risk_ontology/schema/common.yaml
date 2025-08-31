@@ -89,7 +89,6 @@ classes:
       - hasDocumentation
       - hasParentDefinition
       - hasSubDefinition
-      - hasRelatedRisk
 
 slots:
   id:
