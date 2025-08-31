@@ -20,6 +20,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 os.environ["OMP_NUM_THREADS"] = "1"
 
 from linkml_runtime.loaders import yaml_loader
+
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
     AiEval,
@@ -1347,7 +1348,6 @@ class RiskAtlasNexus:
         """
         from ran_ares_integration.data import DATA_DIR
         from ran_ares_integration.datamodel.risk_to_ares_ontology import (
-            ARESConfig,
             RiskToARES,
             RiskToARESMapping,
         )
@@ -1487,5 +1487,3 @@ class RiskAtlasNexus:
                     config_file.name,
                 ]
             )
-
-            break
