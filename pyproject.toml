@@ -73,7 +73,7 @@ docs = [
 ]
 
 [project.scripts]
-ran-plugin = "risk_atlas_nexus.plugins:app"
+ran-extension = "risk_atlas_nexus.extension:app"
 
 [tool.isort]
 skip_glob = ["vrisk-atlas-nexus/*"]

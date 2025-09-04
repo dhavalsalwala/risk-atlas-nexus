@@ -19,7 +19,7 @@ from sssom_schema import Mapping
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 os.environ["OMP_NUM_THREADS"] = "1"
 
-from linkml_runtime.loaders import yaml_loader
+
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
     AiEval,
