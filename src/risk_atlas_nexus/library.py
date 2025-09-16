@@ -1,6 +1,5 @@
 import json
 import os
-import subprocess
 import tempfile
 from importlib.metadata import version
 from pathlib import Path
@@ -8,10 +7,10 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import yaml
+from ares.redteam import RedTeamer
 from jinja2 import Template
 from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import YAMLDumper
-from linkml_runtime.loaders import yaml_loader
 from sssom_schema import Mapping
 
 
@@ -51,7 +50,10 @@ from risk_atlas_nexus.blocks.risk_explorer import RiskExplorer
 from risk_atlas_nexus.blocks.risk_mapping import RiskMapper
 from risk_atlas_nexus.data import load_resource
 from risk_atlas_nexus.metadata_base import MappingMethod
-from risk_atlas_nexus.toolkit.data_utils import load_yamls_to_container
+from risk_atlas_nexus.toolkit.data_utils import (
+    load_yamls_to_container,
+    resolve_ares_assets_path,
+)
 from risk_atlas_nexus.toolkit.error_utils import type_check, value_check
 from risk_atlas_nexus.toolkit.logging import configure_logger
 
@@ -1327,7 +1329,7 @@ class RiskAtlasNexus:
 
         return results
 
-    def run_ares_evaluation_on_risks(
+    def run_risk_to_ares_evaluation(
         cls, risks: List[Risk], inference_engine: InferenceEngine
     ) -> List[List[Risk]]:
         """Submit potential attack risks for ARES red-teaming evaluation
@@ -1341,9 +1343,12 @@ class RiskAtlasNexus:
         Returns:
             None
         """
-        from ran_ares_integration.data import DATA_DIR
+        from ran_ares_integration.assets import (
+            ARES_TARGETS,
+            ASSETS_DIR_PATH,
+            RISK_TO_ARES_MAPPINGS,
+        )
         from ran_ares_integration.datamodel.risk_to_ares_ontology import (
-            RiskToARES,
             RiskToARESMapping,
         )
         from ran_ares_integration.prompt_templates import ARES_GOALS_TEMPLATE
@@ -1352,22 +1357,12 @@ class RiskAtlasNexus:
             f"Submitted Attack risks: {json.dumps([risk.name for risk in risks], indent=2)}"
         )
 
-        # Load all risk-to-ares mappings
-        risk_to_ares: RiskToARES = yaml_loader.load_any(
-            source=yaml_loader.load_as_dict(
-                source=os.path.join(
-                    DATA_DIR, "knowledge_graph", "risk_to_ares_mappings.yaml"
-                )
-            ),
-            target_class=RiskToARES,
-        )
-
-        # find risk_to_ares mappings for the given risks
+        # filter risk_to_ares mappings for the given risks
         risk_to_ares_mappings: List[RiskToARESMapping] = list(
             filter(
                 lambda risk_to_ares: risk_to_ares.risk_id
                 in [risk.tag for risk in risks],
-                risk_to_ares.mappings,
+                RISK_TO_ARES_MAPPINGS.mappings,
             )
         )
 
@@ -1398,37 +1393,30 @@ class RiskAtlasNexus:
             )[0]
             logger.info(f"No. of attack seeds generated: {len(goals.prediction)}")
 
-            # Write ARES config to a tmp file system
-            tmp_dir = tempfile.gettempdir()
-
-            # Writing attack seeds to the tmp location
-            goal_file = Path(os.path.join(tmp_dir, "seeds.csv"))
+            # Write ARES attack seeds to a tmp file system
+            goal_file = Path(os.path.join(tempfile.gettempdir(), "attack_seeds.csv"))
             pd.DataFrame(goals.prediction).rename(
                 columns={"prompt": "Behavior"}
             ).to_csv(goal_file, index=False)
             mapping.ares_config.red_teaming.prompts = str(goal_file)
 
-            # ARES expects connectors.yaml at the same location as config file.
-            with Path(os.path.join(tmp_dir, "connectors.yaml")).open(
-                "+tw"
-            ) as config_file:
-                config_file.write(
-                    Path(os.path.join(DATA_DIR, "connectors.yaml")).read_text()
-                )
-
+            # Prepare config files
             ares_config = mapping.ares_config.model_dump(by_alias=True)
             ares_config.update(ares_config["red-teaming"].pop("intent_config"))
-            with Path(os.path.join(tmp_dir, "run_config.yaml")).open(
-                "+tw"
-            ) as config_file:
-                print(YAMLDumper().dumps(ares_config), file=config_file)
 
-            # Run ARES evaluation
-            # evaluate(Path(config_file.name))
-            subprocess.check_call(
-                [
-                    "ares",
-                    "evaluate",
-                    config_file.name,
-                ]
-            )
+            # replace ARES assests path wherever applicable
+            resolve_ares_assets_path(ares_config, ASSETS_DIR_PATH)
+
+            # Call ARES RedTeamer API for evaluation
+            try:
+                rt = RedTeamer(
+                    user_config=ares_config,
+                    connectors=ARES_TARGETS["connectors"],
+                    verbose=False,
+                )
+                rt.redteam(False, -1)
+            except Exception as e:
+                logger.error(str(e))
+                return
+
+        logger.info(f"Evaluation results saved at {os.getcwd()+"/results"}")
