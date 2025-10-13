@@ -4,21 +4,55 @@ from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
 
 
 LIST_OF_STR_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "harm": {
+            "type": "array",
+            "items": {
+                "enum": [
+                    "Physical health/safety",
+                    "Financial loss",
+                    "Physical property",
+                    "Intangible property",
+                    "Infrastructure",
+                    "Natural environment",
+                    "Social or political systems",
+                    "Other tangible harms",
+                ]
+            },
+        },
+        "explanation": {"type": "string"},
+    },
+    "required": ["harm", "explanation"],
+}
+
+LIKELYHOOD_OUTPUT = {
+    "type": "object",
+    "properties": {"likelihood": {"type": "number"}},
+    "required": ["likelihood"],
+}
+
+LIST_OF_GOAL_SCHEMA = {
     "type": "array",
-    "items": {"enum": None},
+    "items": {
+        "type": "object",
+        "properties": {"goal": {"type": "string"}, "label": {"type": "number"}},
+        "required": ["goal", "label"],
+    },
 }
 
 QUESTIONNAIRE_OUTPUT_SCHEMA = {
     "type": "object",
     "properties": {
-        "answer": {"type": "string"},
+        "answer": {
+            "type": "string",
+            "enum": ["Yes", "No", "Maybe"],
+        },
         "explanation": {"type": "string"},
-        "confidence": {"type": "string"},
     },
     "required": [
         "answer",
         "explanation",
-        "confidence"
     ],
 }
 

@@ -1,0 +1,170 @@
+[
+    {
+        "no": "Q1",
+        "question": "Did the incident occur in a domain with physical objects? 'Yes' if the AI system(s) is embedded in hardware that can interact, affect, and change with the physical objects (roads, factories, medical facilities, etc.). 'No' if the system cannot. This includes systems that inform, detect, predict, or recommend.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Yes"
+            }
+        ]
+    },
+    {
+        "no": "Q2",
+        "question": "Did the AI incident occur in the entertainment industry? 'Yes' if the sector in which the AI was used is associated with entertainment. 'No' if it was used in a different, clearly identifiable sector. 'Maybe' if the sector of use could not be determined.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "No"
+            }
+        ]
+    },
+    {
+        "no": "Q3",
+        "question": "Was the incident about a report, test, or study of data instead of the AI itself? 'Yes' if the incident is about a report, test, or study of the data and does not discuss an instance of injury, damage, or loss. 'Maybe' if it is unclear. Otherwise mark 'No.'",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "No"
+            }
+        ]
+    },
+    {
+        "no": "Q4",
+        "question": "Was the reported system (even if AI involvement is unknown) deployed or sold to users? 'Yes' if the involved system was deployed or sold to users. 'No' if it was not. 'Maybe' if there is not enough information or if the use is unclear.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "Yes"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Maybe"
+            }
+        ]
+    },
+    {
+        "no": "Q5",
+        "question": "Was this a test or demonstration of an AI system done by developers, producers or researchers (versus users) in controlled conditions? 'Yes' if it was a test/demonstration performed by developers, producers or researchers in controlled conditions. 'No' if it was not a test/demonstration. 'No' if the test/demonstration was done by a user. 'No' if the test/demonstration was in operational or uncontrolled conditions. 'Maybe' otherwise.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "No"
+            }
+        ]
+    },
+    {
+        "no": "Q6",
+        "question": "Was this a test or demonstration of an AI system done by developers, producers or researchers (versus users) in operational conditions? 'Yes' if it was a test/demonstration performed by developers, producers or researchers in controlled conditions. 'No' if it was not a test/demonstration. 'No' if the test/demonstration was done by a user. 'No' if the test/demonstration was in controlled or non-operational conditions. 'Maybe' otherwise.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Yes"
+            }
+        ]
+    },
+    {
+        "no": "Q7",
+        "question": "Was this a test or demonstration done by users in controlled conditions? 'Yes' if it was a test/demonstration performed by users in controlled conditions. 'No' if it was not a test demonstration. 'No' if the test/demonstration was done by developers, producers or researchers. 'No' if the test demonstration was in operational or uncontrolled conditions.'Maybe' otherwise.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "No"
+            }
+        ]
+    },
+    {
+        "no": "Q8",
+        "question": "Was this a test or demonstration done by users in operational conditions? 'Yes' if it was a test/demonstration performed by users in operational conditions. 'No' if it was not a test demonstration. 'No' if the test/demonstration was done by developers, producers or researchers. 'No' if the test demonstration was in controlled or non-operational conditions.'Maybe' otherwise.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "Yes"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "No"
+            }
+        ]
+    },
+    {
+        "no": "Q9",
+        "question": "Reflecting upon the previously answered questions, decide if the reported incident occurred in a domain in which harm could possibly occur. This is not a decision on whether or not harm did occur.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Yes"
+            }
+        ]
+    },
+    {
+        "no": "Q10",
+        "question": "Does the incident involve an AI system? Checks if the technology involved is a simple automation technology or a rule-based software system, or if it is based on machine-learning.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "Yes"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Yes"
+            }
+        ]
+    },
+    {
+        "no": "Q11",
+        "question": "If the behavior of the technology described in the incident can be directly and clearly linked to the adverse or potentially adverse outcome described in the incident. ? 'Yes' if the technology was involved in harm, its behavior can be directly linked to the harm, and the harm may not have occurred if the technology acted differently. 'Maybe' if the link is unclear. Otherwise, select 'No.'.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "Yes"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Yes"
+            }
+        ]
+    },
+    {
+        "no": "Q12",
+        "question": "Is there a characterizable class or subgroup of entities that experienced the harm? 'Yes' if the harmed entity or entities can be characterized. 'No' if there are not any characterizable entities.",
+        "cot_examples": [
+            {
+                "intent": "Google's Perspective API, which assigns a toxicity score to online text, seems to award higher toxicity scores to content involving non-white, male, Christian, heterosexual phrases.",
+                "answer": "No"
+            },
+            {
+                "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
+                "answer": "Yes"
+            }
+        ]
+    }
+]

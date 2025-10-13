@@ -30,6 +30,7 @@ from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Stakeholder,
 )
 from risk_atlas_nexus.blocks.inference import InferenceEngine
+from risk_atlas_nexus.blocks.inference.params import TextGenerationInferenceOutput
 from risk_atlas_nexus.blocks.prompt_builder import (
     FewShotPromptBuilder,
     ZeroShotPromptBuilder,
@@ -545,39 +546,111 @@ class RiskAtlasNexus:
             "Usecases must be a list of string.",
         )
 
-        # if not providing taxonomy, set to IBM AI risk atlas
-        if taxonomy is None:
-            logger.warning(
-                f"<RAN47375G12W>",
-                f"Taxonomy was not provided, defaulting to ibm-ai-risk-atlas.",
+        cot_examples = load_resource("cset_ai_harm_questionnaire.json")
+        responses: List[TextGenerationInferenceOutput] = (
+            cls.generate_few_shot_risk_questionnaire_output(
+                usecases[0],
+                risk_questionnaire=cot_examples[0:8],
+                inference_engine=inference_engine,
             )
-        set_taxonomy = taxonomy or "ibm-ai-risk-atlas"
-
-        processed_examples = None
-        if zero_shot_only:
-            logger.info(
-                f"The `zero_shot_only` flag is enabled. The system will use the Zero shot method. Any provided `cot_examples` will be disregarded.",
-            )
-        else:
-            # For the given taxonomy type, check if the user has provided 'cot_examples'. If not,
-            # retrieve the default cot examples from the master. If no examples exist in the master,
-            # set it as None.
-            processed_examples = (
-                cot_examples and cot_examples.get(set_taxonomy, None)
-            ) or RISK_IDENTIFICATION_COT.get(set_taxonomy, None)
-            if processed_examples is None:
-                logger.warning(
-                    f"<RAN47275F12W> Chain of Thought (CoT) examples were not provided, or do not exist in the master for this taxonomy. The API will use the Zero shot method. To improve the accuracy of risk identification, please provide CoT examples in `cot_examples` when calling this API. You may also consider raising an issue to permanently add these examples to the Risk Atlas Nexus master."
-                )
-
-        risk_detector = GenericRiskDetector(
-            risks=cls._risk_explorer.get_all_risks(set_taxonomy),
-            inference_engine=inference_engine,
-            cot_examples=processed_examples,
-            max_risk=max_risk,
         )
 
-        return risk_detector.detect(usecases)
+        # ["Yes", "No", "No", "Yes", "No", "No", "No", "No"]
+        usecases_for_harm = usecases[0]
+        for cot_example, response in zip(cot_examples[0:8], responses):
+            usecases_for_harm += (
+                f"\n\n{cot_example['no']}: {cot_example['question']}\nA: {response}"
+            )
+
+        ai_harm_questions = []
+        harm_occured: List[TextGenerationInferenceOutput] = (
+            cls.generate_few_shot_risk_questionnaire_output(
+                usecases_for_harm,
+                risk_questionnaire=[cot_examples[8]],
+                inference_engine=inference_engine,
+            )[0]
+        )
+        ai_harm_questions.append(
+            True if harm_occured.prediction["answer"] == "Yes" else False
+        )
+
+        ai_system: List[TextGenerationInferenceOutput] = (
+            cls.generate_few_shot_risk_questionnaire_output(
+                usecases[0],
+                risk_questionnaire=[cot_examples[9]],
+                inference_engine=inference_engine,
+            )[0]
+        )
+        ai_harm_questions.append(
+            True if ai_system.prediction["answer"] == "Yes" else False
+        )
+
+        link_to_harm: List[TextGenerationInferenceOutput] = (
+            cls.generate_few_shot_risk_questionnaire_output(
+                usecases[0],
+                risk_questionnaire=[cot_examples[10]],
+                inference_engine=inference_engine,
+            )[0]
+        )
+        ai_harm_questions.append(
+            True if link_to_harm.prediction["answer"] == "Yes" else False
+        )
+
+        entity_experienced: List[TextGenerationInferenceOutput] = (
+            cls.generate_few_shot_risk_questionnaire_output(
+                usecases[0],
+                risk_questionnaire=[cot_examples[11]],
+                inference_engine=inference_engine,
+            )[0]
+        )
+        ai_harm_questions.append(
+            True if entity_experienced.prediction["answer"] == "Yes" else False
+        )
+
+        # if not providing taxonomy, set to IBM AI risk atlas
+        # if taxonomy is None:
+        #     logger.warning(
+        #         f"<RAN47375G12W>",
+        #         f"Taxonomy was not provided, defaulting to ibm-ai-risk-atlas.",
+        #     )
+        # set_taxonomy = taxonomy or "ibm-ai-risk-atlas"
+
+        # processed_examples = None
+        # if zero_shot_only:
+        #     logger.info(
+        #         f"The `zero_shot_only` flag is enabled. The system will use the Zero shot method. Any provided `cot_examples` will be disregarded.",
+        #     )
+        # else:
+        #     # For the given taxonomy type, check if the user has provided 'cot_examples'. If not,
+        #     # retrieve the default cot examples from the master. If no examples exist in the master,
+        #     # set it as None.
+        #     processed_examples = (
+        #         cot_examples and cot_examples.get(set_taxonomy, None)
+        #     ) or RISK_IDENTIFICATION_COT.get(set_taxonomy, None)
+        #     if processed_examples is None:
+        #         logger.warning(
+        #             f"<RAN47275F12W> Chain of Thought (CoT) examples were not provided, or do not exist in the master for this taxonomy. The API will use the Zero shot method. To improve the accuracy of risk identification, please provide CoT examples in `cot_examples` when calling this API. You may also consider raising an issue to permanently add these examples to the Risk Atlas Nexus master."
+        #         )
+
+        # if set_taxonomy == "ibm-attack-risk-atlas":
+        #     risks = [
+        #         risk
+        #         for risk in cls._risk_explorer.get_all_risks("ibm-risk-atlas")
+        #         if risk.tag.endswith("-attack")
+        #     ]
+        # else:
+        #     risks = cls._risk_explorer.get_all_risks(set_taxonomy)
+
+        if all(ai_harm_questions):
+            risk_detector = GenericRiskDetector(
+                inference_engine=inference_engine,
+                risks=load_resource("cset_ai_harm_taxonomy.json"),
+                max_risk=max_risk,
+            )
+
+            return risk_detector.detect([usecases[0]])
+        else:
+            return [[]]
 
     def get_all_taxonomies(cls):
         """Get all taxonomy definitions from the LinkML
@@ -1182,7 +1255,9 @@ class RiskAtlasNexus:
             taxonomy=taxonomy,
         )
 
-        stakeholder_instances: list[Stakeholder] = cls._risk_explorer.get_stakeholders(taxonomy)
+        stakeholder_instances: list[Stakeholder] = cls._risk_explorer.get_stakeholders(
+            taxonomy
+        )
         return stakeholder_instances
 
     def get_stakeholder(cls, id=str):
@@ -1208,8 +1283,6 @@ class RiskAtlasNexus:
         stakeholder: Stakeholder | None = cls._risk_explorer.get_stakeholder(id=id)
         return stakeholder
 
-
-
     def get_intrinsics(cls, taxonomy=None):
         """Get all intrinsic definitions from the LinkML
 
@@ -1228,7 +1301,9 @@ class RiskAtlasNexus:
             taxonomy=taxonomy,
         )
 
-        intrinsic_instances: list[LLMIntrinsic] = cls._risk_explorer.get_llmintrinsics(taxonomy)
+        intrinsic_instances: list[LLMIntrinsic] = cls._risk_explorer.get_llmintrinsics(
+            taxonomy
+        )
         return intrinsic_instances
 
     def get_intrinsic(cls, id=str):
@@ -1310,7 +1385,6 @@ class RiskAtlasNexus:
         )
         return intrinsics
 
-
     def get_adapters(cls, taxonomy=None):
         """Get all adapter definitions from the LinkML
 
@@ -1354,7 +1428,6 @@ class RiskAtlasNexus:
 
         adapter: Adapter | None = cls._risk_explorer.get_adapter(id=id)
         return adapter
-
 
     def get_instances(cls, target_class, taxonomy=None):
         """Get all instance definitions from the LinkML

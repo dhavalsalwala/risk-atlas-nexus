@@ -1,35 +1,56 @@
 QUESTIONNAIRE_COT_TEMPLATE = """
         I want you to play the role of a compliance officer and answer the question based on the given Intent.
-        Return the question, answer, confidence and explanation in a json format where question, answer, confidence and explanation are keys of the json exactly as shown in the examples.
-        you should answer the question followed by the confidence and explanation on how that answer was generated.
+        Return the question, answer and explanation in a json format where question, answer and explanation are keys of the json exactly as shown in the examples.
+        you should answer the question followed by an explanation on how that answer was generated.
 {% if cot_examples is not none %}{% for example in cot_examples %}
         Intent: {{ example.intent }}
         Question: {{ question }}
         Answer: {{ example.answer }}
 {% if example.explanation is not none %}        Explanation: {{ example.explanation }}{% endif %}
-{% if example.confidence is not none %}        confidence: {{ example.confidence }}{% endif %}
 {% endfor %}{% endif %}
         Intent: {{ usecase }}
         Question: {{ question }}
 """
 
-RISK_IDENTIFICATION_TEMPLATE = """You are an expert at AI risk classification. Study the risks JSON below containing list of risk category and its description.
+RISK_IDENTIFICATION_TEMPLATE = """You are an expert at AI Harm classification. Study the JSON below containing list of AI tangible harm categories and their description.
 
-RISKS:
+AI Harms:
 {{ risks }}
 
 Instructions:
-1. Identify the potential RISKS associated with the given usecase. Use RISK `description` to verify if the risk is associated with the usecase.
-2. If Input doesn't fit into any of the above RISKS categories, classify it as Unknown.
-3. Respond with an array list{% if max_risk is not none %} (top {{ max_risk }} high risks categories){% endif %} of attribute 'category' containing the risk labels.
-{% if cot_examples is not none and cot_examples|length > 0 %}
-EXAMPLES:{% for example in cot_examples %}
-Usecase: {{ example.Usecase }}
-Risks: {{ example.Risks }}{% endfor %}
-===== END OF EXAMPLES ======
-{% endif %}
+Classify the below incident into the above AI Harm categories with an explanation.
+
+Incident: {{ usecase }}
+AI Harm: """
+
+RISK_IDENTIFICATION_TEMPLATE_2 = """You are an expert at AI risk classification. Understand the Usecase and AI Risk information given below. AI Risk contains risk category, its description and the risk concern.
+
 Usecase: {{ usecase }}
-Risks: """
+
+AI Risk
+Category: {{ risk_name }}
+Description: {{ risk_description }}
+Concern: {{ risk_concern }}
+
+Instructions:
+1. Assess whether the specified AI Risk exists in the provided Usecase. Use the Description and Concern to evaluate if the Usecase will absolutely lead to the specified AI Risk.
+2. Respond with a JSON object containing likelihood of the specified AI Risk being present in the Usecase where 0 means no risk is present and 10 means the risk is present 100%.
+
+Output: """
+
+RISK_IDENTIFICATION_TEMPLATE_3 = """You are an expert at AI risk classification. Understand the risk below containing risk category and its description.
+
+Usecase: {{ usecase }}
+
+Risk: {{ risk_name }}
+Risk Description: {{ risk_description }}
+Risk Concern: {{ risk_concern }}
+
+Instructions:
+1. Assess whether the specified Risk exists in the provided usecase. Use the Risk Description and Risk Concern to evaluate if the use case will absolutely lead to the specified Risk.
+2. If the specified Risk is present in the usecase, respond with 'Yes'. If the specified Risk is not present in the usecase, classify it as 'No'.
+
+Output: """
 
 AI_TASKS_TEMPLATE = """Study and understand the JSON below containing a list of LLM task and its description.
 
@@ -432,4 +453,20 @@ RISK_SEVERITY_TEMPLATE = """
            "AIActText": "[Quotation if applicable] - Include the amendment or EU AI Act section that mostly closely resembles the text.",
            "Reasoning": "[Explanation]"
          }
+"""
+
+USECASE_STAKEHOLDER_TEMPLATE = """
+Your task is to predict stakeholders that are users or subjects of a use case.
+Usecase:
+{{ usecase }}
+{% if candidate_labels %}
+Choose zero or more stakeholders from this allowed list ONLY:
+{% for s in candidate_labels %}
+- {{ s }}
+{% endfor %}
+Return ONLY a JSON array of strings, each exactly matching one allowed label.
+{% else %}
+Extract zero or more stakeholder groups (free-form) as concise strings (e.g., "patients", "IT admins", "drivers").
+Return ONLY a JSON array of strings (no duplicates, max 5 words each).
+{% endif %}
 """

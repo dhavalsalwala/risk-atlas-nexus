@@ -1,0 +1,34 @@
+[
+    {
+        "harm": "Physical health/safety",
+        "description": "This includes death, injury, or a reduction in lifespan."
+    },
+    {
+        "harm": "Financial loss",
+        "description": "This includes any loss which is economic in nature and not consequent upon injury or damage. It is the inability to keep, have, or get something that is monetary in nature. For example, this would include loss of wages from wrongful detainment."
+    },
+    {
+        "harm": "Physical property",
+        "description": "The damaging of a physical object. Note this does not include damage to the environment, which has a separate designation."
+    },
+    {
+        "harm": "Intangible property",
+        "description": "It is possible to experience tangible harm (financial loss) from the loss of intangible property. Examples of intangible property include patents, reputation, copyrights, trade secrets. Within the AIID reports, this should be uncommon and would only be an AI tangible harm even if there were legal actions or damages indicating harm to intangible property had occurred. This high bar for harm to intangible property is necessary, otherwise it could be claimed that almost any negative report about a company’s AI resulted in reputation damage."
+    },
+    {
+        "harm": "Infrastructure",
+        "description": "Infrastructure includes the network of roads, railways, utilities, and buildings necessary to maintain commerce, transportation, political structures, and the normalcy in daily life. Infrastructure can be harmed through destruction, diminished capability, or reduced effectiveness."
+    },
+    {
+        "harm": "Natural environment",
+        "description": "Pollution is the most likely type of environmental harm that an annotator will encounter."
+    },
+    {
+        "harm": "Social or political systems",
+        "description": "These harms often arise from biases in data, design choices, or deployment contexts, and they can affect institutions, public discourse, and democratic processes."
+    },
+    {
+        "harm": "Other tangible harms",
+        "description": "Tangible harms that do not fall under any of the aforementioned categories."
+    }
+]
