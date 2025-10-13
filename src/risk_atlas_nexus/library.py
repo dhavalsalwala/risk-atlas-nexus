@@ -21,14 +21,17 @@ os.environ["OMP_NUM_THREADS"] = "1"
 
 from risk_atlas_nexus.ai_risk_ontology.datamodel.ai_risk_ontology import (
     Action,
+    Adapter,
     AiEval,
     BenchmarkMetadataCard,
     Dataset,
     Documentation,
+    LLMIntrinsic,
     Risk,
     RiskControl,
     RiskIncident,
     RiskTaxonomy,
+    Stakeholder,
 )
 from risk_atlas_nexus.blocks.inference import InferenceEngine
 from risk_atlas_nexus.blocks.prompt_builder import (
@@ -1071,7 +1074,7 @@ class RiskAtlasNexus:
                 (Optional) The string label for a taxonomy
 
         Returns:
-            Action
+            BenchmarkMetadataCard
                 Result containing a benchmark_metadata_card.
         """
         type_check(
@@ -1119,7 +1122,7 @@ class RiskAtlasNexus:
                 (Optional) The string label for a taxonomy
 
         Returns:
-            Action
+            Documentation
                 Result containing a document.
         """
         type_check(
@@ -1163,7 +1166,7 @@ class RiskAtlasNexus:
                 (Optional) The string label for a taxonomy
 
         Returns:
-            Action
+            Dataset
                 Result containing a dataset.
         """
         type_check(
@@ -1175,6 +1178,227 @@ class RiskAtlasNexus:
 
         dataset: Dataset | None = cls._risk_explorer.get_dataset(id=id)
         return dataset
+
+    def get_stakeholders(cls, taxonomy=None):
+        """Get all stakeholder definitions from the LinkML
+
+        Args:
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            list[Stakeholder]
+                Result containing a list of Stakeholder entries
+        """
+        type_check(
+            "<RAN61770043E>",
+            str,
+            allow_none=True,
+            taxonomy=taxonomy,
+        )
+
+        stakeholder_instances: list[Stakeholder] = cls._risk_explorer.get_stakeholders(taxonomy)
+        return stakeholder_instances
+
+    def get_stakeholder(cls, id=str):
+        """Get a stakeholder definition from the LinkML, filtered by id
+
+        Args:
+            id: str
+                The string id identifying the stakeholder entry
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            Stakeholder
+                Result containing a stakeholder.
+        """
+        type_check(
+            "<RAN12472418E>",
+            str,
+            allow_none=False,
+            id=id,
+        )
+
+        stakeholder: Stakeholder | None = cls._risk_explorer.get_stakeholder(id=id)
+        return stakeholder
+
+
+
+    def get_intrinsics(cls, taxonomy=None):
+        """Get all intrinsic definitions from the LinkML
+
+        Args:
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            list[LLMIntrinsic]
+                Result containing a list of LLMIntrinsic entries
+        """
+        type_check(
+            "<RAN61770043E>",
+            str,
+            allow_none=True,
+            taxonomy=taxonomy,
+        )
+
+        intrinsic_instances: list[LLMIntrinsic] = cls._risk_explorer.get_llmintrinsics(taxonomy)
+        return intrinsic_instances
+
+    def get_intrinsic(cls, id=str):
+        """Get an intrinsic definition from the LinkML, filtered by id
+
+        Args:
+            id: str
+                The string id identifying the intrinsic entry
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            LLMIntrinsic
+                Result containing a intrinsic.
+        """
+        type_check(
+            "<RAN12472418E>",
+            str,
+            allow_none=False,
+            id=id,
+        )
+
+        intrinsic: LLMIntrinsic | None = cls._risk_explorer.get_llmintrinsic(id=id)
+        return intrinsic
+
+    def get_related_intrinsics(
+        cls,
+        risk=None,
+        tag=None,
+        risk_id=None,
+        name=None,
+        taxonomy=None,
+    ):
+        """Get related intrinsics for a risk definition from the LinkML.  The risk is identified by risk id, tag, or name
+
+        Args:
+            risk: (Optional) Risk
+                The risk
+            risk_id: (Optional) str
+                The string ID identifying the risk
+            tag: (Optional) str
+                The string tag identifying the risk
+            name: (Optional) str
+                The string name identifying the risk
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            List
+                Result containing a list of Intrinsics
+        """
+        type_check(
+            "<RAN4E03158FE>",
+            Risk,
+            allow_none=True,
+            risk=risk,
+        )
+        type_check(
+            "<RAN55784808E>",
+            str,
+            allow_none=True,
+            tag=tag,
+            risk_id=risk_id,
+            name=name,
+            taxonomy=taxonomy,
+        )
+        value_check(
+            "<RAN5DCADF94E>",
+            risk or tag or risk_id or name,
+            "Please provide risk, tag, risk_id, or name",
+        )
+
+        intrinsics = cls._risk_explorer.get_related_llmintrinsics(
+            risk=risk,
+            tag=tag,
+            risk_id=risk_id,
+            name=name,
+            taxonomy=taxonomy,
+        )
+        return intrinsics
+
+
+    def get_adapters(cls, taxonomy=None):
+        """Get all adapter definitions from the LinkML
+
+        Args:
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            list[Adapter]
+                Result containing a list of Adapter entries
+        """
+        type_check(
+            "<RAN61770043E>",
+            str,
+            allow_none=True,
+            taxonomy=taxonomy,
+        )
+
+        adapter_instances: list[Adapter] = cls._risk_explorer.get_adapters(taxonomy)
+        return adapter_instances
+
+    def get_adapter(cls, id=str):
+        """Get an adapter definition from the LinkML, filtered by id
+
+        Args:
+            id: str
+                The string id identifying the stakeholder entry
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            Adapter
+                Result containing a adapter.
+        """
+        type_check(
+            "<RAN12472418E>",
+            str,
+            allow_none=False,
+            id=id,
+        )
+
+        adapter: Adapter | None = cls._risk_explorer.get_adapter(id=id)
+        return adapter
+
+
+    def get_instances(cls, target_class, taxonomy=None):
+        """Get all instance definitions from the LinkML
+
+        Args:
+            target_class: str
+                (Optional) The string label for a target class
+            taxonomy: str
+                (Optional) The string label for a taxonomy
+
+        Returns:
+            list[Any]
+                Result containing a list of instance entries
+        """
+        type_check(
+            "<RAN92358069E>",
+            str,
+            allow_none=False,
+            target_class=id,
+        )
+        type_check(
+            "<RAN61877043E>",
+            str,
+            allow_none=True,
+            taxonomy=taxonomy,
+        )
+
+        instances: list[Any] = cls._risk_explorer.get_instances(target_class, taxonomy)
+        return instances
 
     def identify_domain_from_usecases(
         cls, usecases: List[str], inference_engine: InferenceEngine, verbose=True

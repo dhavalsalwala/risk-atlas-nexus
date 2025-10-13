@@ -22,10 +22,12 @@ QUESTIONNAIRE_OUTPUT_SCHEMA = {
     "properties": {
         "answer": {"type": "string"},
         "explanation": {"type": "string"},
+        "confidence": {"type": "string"},
     },
     "required": [
         "answer",
         "explanation",
+        "confidence"
     ],
 }
 
