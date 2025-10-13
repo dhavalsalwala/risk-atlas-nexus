@@ -109,6 +109,7 @@ classes:
     is_a: Entity
     mixins:
       - RiskConcept
+    class_uri: https://w3id.org/dpv/risk#Incident
     description: An event occuring or occured which is a realised or materialised risk.
     attributes:
       author:

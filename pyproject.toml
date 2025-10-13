@@ -54,7 +54,7 @@ dependencies = [
     "txtai",
     "jsonschema",
     "isort",
-    "pre-commit"
+    "pre-commit",
 ]
 
 
