@@ -11,7 +11,27 @@
                 "intent": "An Uber autonomous vehicle (AV) in autonomous mode struck and killed a pedestrian in Tempe, Arizona.",
                 "answer": "Yes"
             }
-        ]
+        ],
+        "response_format": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string",
+                    "enum": [
+                        "Yes",
+                        "No",
+                        "Maybe"
+                    ]
+                },
+                "explanation": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "answer",
+                "explanation"
+            ]
+        }
     },
     {
         "no": "Q2",
