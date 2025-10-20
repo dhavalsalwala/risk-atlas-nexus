@@ -794,23 +794,26 @@ class RiskAtlasNexus:
             risk_questionnaire and len(risk_questionnaire) > 0
         ), "`Chain of Thought (risk_questionnaire_cot)` data cannot be None or empty."
 
-        # Prepare few shots inference prompts from CoT Data
-        prompts = [
-            FewShotPromptBuilder(QUESTIONNAIRE_COT_TEMPLATE).build(
-                cot_examples=question_data["cot_examples"],
-                usecase=usecase,
-                question=question_data["question"],
+        # Prepare few shots inference prompts from CoT Data and invoke inference service
+        responses = [
+            inference_engine.generate(
+                prompts=[
+                    FewShotPromptBuilder(QUESTIONNAIRE_COT_TEMPLATE).build(
+                        cot_examples=question_data["cot_examples"],
+                        usecase=usecase,
+                        question=question_data["question"],
+                    )
+                ],
+                response_format=question_data.get(
+                    "response_format", QUESTIONNAIRE_OUTPUT_SCHEMA
+                ),
+                postprocessors=["json_object"],
+                verbose=verbose,
             )
             for question_data in risk_questionnaire
         ]
 
-        # Invoke inference service
-        return inference_engine.generate(
-            prompts,
-            response_format=QUESTIONNAIRE_OUTPUT_SCHEMA,
-            postprocessors=["json_object"],
-            verbose=verbose,
-        )
+        return responses
 
     def identify_ai_tasks_from_usecases(
         cls, usecases: List[str], inference_engine: InferenceEngine, verbose=True
