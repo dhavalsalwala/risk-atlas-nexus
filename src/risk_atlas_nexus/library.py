@@ -782,7 +782,7 @@ class RiskAtlasNexus:
             "<RAN46376875E>",
             List,
             allow_none=False,
-            questions=risk_questionnaire,
+            risk_questionnaire=risk_questionnaire,
         )
         value_check(
             "<RAN59638961E>",
@@ -809,7 +809,7 @@ class RiskAtlasNexus:
                 ),
                 postprocessors=["json_object"],
                 verbose=verbose,
-            )
+            )[0]
             for question_data in risk_questionnaire
         ]
 
