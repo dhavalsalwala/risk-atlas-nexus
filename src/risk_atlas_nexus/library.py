@@ -572,8 +572,17 @@ class RiskAtlasNexus:
                     f"<RAN47275F12W> Chain of Thought (CoT) examples were not provided, or do not exist in the master for this taxonomy. The API will use the Zero shot method. To improve the accuracy of risk identification, please provide CoT examples in `cot_examples` when calling this API. You may also consider raising an issue to permanently add these examples to the Risk Atlas Nexus master."
                 )
 
+        if set_taxonomy == "ibm-attack-risk-atlas":
+            risks = [
+                risk
+                for risk in cls._risk_explorer.get_all_risks("ibm-risk-atlas")
+                if risk.tag.endswith("-attack")
+            ]
+        else:
+            risks = cls._risk_explorer.get_all_risks(set_taxonomy)
+
         risk_detector = GenericRiskDetector(
-            risks=cls._risk_explorer.get_all_risks(set_taxonomy),
+            risks=risks,
             inference_engine=inference_engine,
             cot_examples=processed_examples,
             max_risk=max_risk,
@@ -1184,7 +1193,9 @@ class RiskAtlasNexus:
             taxonomy=taxonomy,
         )
 
-        stakeholder_instances: list[Stakeholder] = cls._risk_explorer.get_stakeholders(taxonomy)
+        stakeholder_instances: list[Stakeholder] = cls._risk_explorer.get_stakeholders(
+            taxonomy
+        )
         return stakeholder_instances
 
     def get_stakeholder(cls, id=str):
@@ -1210,8 +1221,6 @@ class RiskAtlasNexus:
         stakeholder: Stakeholder | None = cls._risk_explorer.get_stakeholder(id=id)
         return stakeholder
 
-
-
     def get_intrinsics(cls, taxonomy=None):
         """Get all intrinsic definitions from the LinkML
 
@@ -1230,7 +1239,9 @@ class RiskAtlasNexus:
             taxonomy=taxonomy,
         )
 
-        intrinsic_instances: list[LLMIntrinsic] = cls._risk_explorer.get_llmintrinsics(taxonomy)
+        intrinsic_instances: list[LLMIntrinsic] = cls._risk_explorer.get_llmintrinsics(
+            taxonomy
+        )
         return intrinsic_instances
 
     def get_intrinsic(cls, id=str):
@@ -1312,7 +1323,6 @@ class RiskAtlasNexus:
         )
         return intrinsics
 
-
     def get_adapters(cls, taxonomy=None):
         """Get all adapter definitions from the LinkML
 
@@ -1357,7 +1367,6 @@ class RiskAtlasNexus:
         adapter: Adapter | None = cls._risk_explorer.get_adapter(id=id)
         return adapter
 
-
     def get_llm_question_policies(cls, taxonomy=None):
         """Get all LLM Quesiton Policy definitions from the LinkML
 
@@ -1376,7 +1385,9 @@ class RiskAtlasNexus:
             taxonomy=taxonomy,
         )
 
-        llm_question_policy_instances: list[LLMQuestionPolicy] = cls._risk_explorer.get_llm_question_policies(taxonomy)
+        llm_question_policy_instances: list[LLMQuestionPolicy] = (
+            cls._risk_explorer.get_llm_question_policies(taxonomy)
+        )
         return llm_question_policy_instances
 
     def get_llm_question_policy(cls, id=str):
@@ -1399,10 +1410,10 @@ class RiskAtlasNexus:
             id=id,
         )
 
-        llm_question_policy: LLMQuestionPolicy | None = cls._risk_explorer.get_llm_question_policy(id=id)
+        llm_question_policy: LLMQuestionPolicy | None = (
+            cls._risk_explorer.get_llm_question_policy(id=id)
+        )
         return llm_question_policy
-
-
 
     def get_instances(cls, target_class, taxonomy=None):
         """Get all instance definitions from the LinkML
@@ -1585,3 +1596,108 @@ class RiskAtlasNexus:
             )
 
         return results
+
+    def run_risk_to_ares_evaluation(
+        cls,
+        risks: List[Risk],
+        inference_engine: InferenceEngine,
+        assets_path: Optional[Path] = None,
+    ) -> List[List[Risk]]:
+        """Submit potential attack risks for ARES red-teaming evaluation
+
+        Args:
+            risks (List[Risk]):
+                A List of attack risks
+            inference_engine (InferenceEngine):
+                An LLM inference engine to infer risks from the usecases.
+            assets_path (Optional[Path], optional):
+                Path to the ARES assets. if None, uses the system default assets.
+
+        Returns:
+            None
+        """
+        import tempfile
+
+        import pandas as pd
+        from ares.redteam import RedTeamer
+        from ran_ares_integration.assets import (
+            ARES_TARGETS,
+            ASSETS_DIR_PATH,
+            RISK_TO_ARES_MAPPINGS,
+        )
+        from ran_ares_integration.datamodel.risk_to_ares_ontology import (
+            RiskToARESMapping,
+        )
+        from ran_ares_integration.prompt_templates import ARES_GOALS_TEMPLATE
+
+        from risk_atlas_nexus.toolkit.data_utils import resolve_ares_assets_path
+
+        logger.info(
+            f"Submitted Attack risks: {json.dumps([risk.name for risk in risks], indent=2)}"
+        )
+
+        # filter risk_to_ares mappings for the given risks
+        risk_to_ares_mappings: List[RiskToARESMapping] = list(
+            filter(
+                lambda risk_to_ares: risk_to_ares.risk_id
+                in [risk.tag for risk in risks],
+                RISK_TO_ARES_MAPPINGS.mappings,
+            )
+        )
+
+        for mapping in risk_to_ares_mappings:
+            risk: Risk = next(filter(lambda risk: risk.tag == mapping.risk_id, risks))
+            logger.info(f"ARES mapping found for attack risk: {risk.name}")
+            logger.info(f"Generating attack seeds...")
+            goals = inference_engine.generate(
+                prompts=[
+                    Template(ARES_GOALS_TEMPLATE).render(
+                        risk_name=risk.name,
+                        risk_description=risk.description,
+                        risk_concern=risk.concern,
+                    )
+                ],
+                response_format={
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "prompt": {"type": "string"},
+                        },
+                        "required": ["prompt"],
+                    },
+                },
+                postprocessors=["json_object"],
+                verbose=False,
+            )[0]
+            logger.info(f"No. of attack seeds generated: {len(goals.prediction)}")
+
+            # Write ARES attack seeds to a tmp file system
+            goal_file = Path(os.path.join(tempfile.gettempdir(), "attack_seeds.csv"))
+            pd.DataFrame(goals.prediction).rename(
+                columns={"prompt": "Behavior"}
+            ).to_csv(goal_file, index=False)
+            mapping.ares_config.red_teaming.prompts = str(goal_file)
+
+            # Prepare config files
+            ares_config = mapping.ares_config.model_dump(by_alias=True)
+            ares_config.update(ares_config["red-teaming"].pop("intent_config"))
+
+            # replace ARES assests path wherever applicable
+            resolve_ares_assets_path(
+                ares_config, assets_path if assets_path else ASSETS_DIR_PATH
+            )
+
+            # Call ARES RedTeamer API for evaluation
+            try:
+                rt = RedTeamer(
+                    user_config=ares_config,
+                    connectors=ARES_TARGETS["connectors"],
+                    verbose=False,
+                )
+                rt.redteam(False, -1)
+            except Exception as e:
+                logger.error(str(e))
+                return
+
+        logger.info(f"Evaluation results saved at {os.getcwd()+"/results"}")

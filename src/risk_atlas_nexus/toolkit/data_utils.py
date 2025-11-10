@@ -1,5 +1,6 @@
 import glob
 import os
+from typing import Dict
 
 from linkml_runtime.loaders import yaml_loader
 
@@ -74,3 +75,13 @@ def load_yamls_to_container(base_dir):
     )
 
     return ontology
+
+
+def resolve_ares_assets_path(param_dict, assets_path):
+    for param, param_value in param_dict.items():
+        if isinstance(param_value, str) and param_value.lower().startswith(
+            "ares_assets"
+        ):
+            param_dict[param] = param_value.replace("ares_assets", str(assets_path))
+        elif isinstance(param_value, Dict):
+            resolve_ares_assets_path(param_value, assets_path)
